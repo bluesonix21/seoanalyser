@@ -52,7 +52,21 @@
   "settings": {
     "title": "Ayarlar",
     "theme": "Tema",
-    "language": "Dil"
+    "language": "Dil",
+    "themes": {
+      "cyber": "Siber",
+      "matrix": "Matrix",
+      "ocean": "Okyanus",
+      "blood": "Kan",
+      "royal": "Kraliyet"
+    },
+    "languages": {
+      "en": "İngilizce",
+      "tr": "Türkçe",
+      "ar": "Arapça",
+      "ru": "Rusça",
+      "cn": "Çince"
+    }
   },
   "help": {
     "title": "Yardım & Belgelendirme",

@@ -52,7 +52,21 @@
   "settings": {
     "title": "设置",
     "theme": "主题",
-    "language": "语言"
+    "language": "语言",
+    "themes": {
+      "cyber": "赛博",
+      "matrix": "矩阵",
+      "ocean": "海洋",
+      "blood": "血色",
+      "royal": "皇家"
+    },
+    "languages": {
+      "en": "英语",
+      "tr": "土耳其语",
+      "ar": "阿拉伯语",
+      "ru": "俄语",
+      "cn": "中文"
+    }
   },
   "help": {
     "title": "帮助与文档",

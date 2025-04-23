@@ -52,7 +52,21 @@
   "settings": {
     "title": "Settings",
     "theme": "Theme",
-    "language": "Language"
+    "language": "Language",
+    "themes": {
+      "cyber": "Cyber",
+      "matrix": "Matrix",
+      "ocean": "Ocean",
+      "blood": "Blood",
+      "royal": "Royal"
+    },
+    "languages": {
+      "en": "English",
+      "tr": "Turkish",
+      "ar": "Arabic",
+      "ru": "Russian",
+      "cn": "Chinese"
+    }
   },
   "help": {
     "title": "Help & Documentation",

@@ -1,0 +1,67 @@
+"Python ile NovaSEO adlı bir SEO ve Backlink analiz uygulaması geliştiriyorum. Aşağıdaki spesifikasyonlara uygun dashboard.py dosyasını oluşturmak için uzman seviyesinde yardıma ihtiyacım var:
+
+Arayüz Yapısı:
+
+Futuristik Tasarım: Uzay teması/cyberpunk dokunuşlu gradient renkler (mor-mavi tonları) ve yarı saydam efektler
+
+Sidebar (Sol Panel):
+
+Simge + Metinli menü: Ev (🏠), Yapay Zeka (🤖), Ayarlar (⚙️), Yardım (❔)
+
+Aktif sekme vurgusu için animasyonlu highlight efekti
+
+Tab Bar (Üst Bar): Açık sekmelerin dinamik olarak listelendiği, sürükle-bırak özellikli modern tab sistemi
+
+Ana Dashboard (Ev Sekmesi):
+
+Akıllı Kartlar:
+
+4x2 grid düzeninde interaktif kartlar (SEO Skoru, Backlink Haritası, Rakip Analizi vb.)
+
+Her kartta: Konuya özel simge (SVG), dinamik metinler, mini grafik ve hover efektleri
+
+Tıklanınca ilgili analiz sekmesini açma özelliği
+
+Çoklu Dil & Tema Desteği:
+
+5 Dil: TR/EN/AR/RU/CN için JSON tabanlı lokalizasyon sistemi (RTL destekli)
+
+5 Tema: Cyber (varsayılan), Matrix (yeşil), Ocean (mavi), Blood (kırmızı), Royal (altın)
+
+Gerçek zamanlı tema değişimi (renk paleti, fontlar, UI elementleri)
+
+Yapay Zeka Arayüzü:
+
+Sohbet arayüzü tasarımı: Mesaj geçmişi paneli, markdown destekli input alanı
+
+Simülasyon amaçlı sahte yanıt üreteci (tema testi için)
+
+Teknik Gereksinimler:
+
+PyQt6/QtModern kullanarak hardware-accelerated rendering
+
+CSS benzeri stil dosyalarıyla tema yönetimi
+
+Dinamik dil değişimi için observer pattern implementasyonu
+
+Tüm UI stringlerinin external localization files'dan çekilmesi
+
+Öncelikli Beklentiler:
+✔️ Tüm UI elementlerinin tema/dil değişimine tepki vermesi
+✔️ Responsive layout (1280x720 - 4K arası uyumluluk)
+✔️ SVG ikonların dinamik renklendirilmesi
+❌ Backend entegrasyonu GEREKMİYOR (sadece arayüz)
+
+Senden çok özel önemli bir isteğim olacak. Şimdi ben yapay zeka destekli bir NovaSEO uygulaması yapıyorum SEO ve Backlink analizi tarzı şeyler yapacak. Bu dashboard kısmını tek yapacaksın ve dashboard.py dosyası olarak. Şimdi nasıl bir şey yapacaksın az çok tarif edeyim:
+
+Pencere çok tatlı, futuristik ve gelişmiş olacak. Solda sidebar (Türkçede “kenar çubuğu” veya “yan çubuk” denir) olacak ve ev simgesi, ayarlar simgesi, ? (soru işareti, yardım bölümü), Yapay Zeka gibi simgeler iconlar olacak seçenekler olarak.
+
+Üstte Tab çubuğu (ing. Tab Bar ya da Tab Strip) olacak. Ne açılmışsa orada sıralanacak.
+
+Ana menü yani ev simgesi açılacak dashboard ilk açıldığında evde böyle ortada kutular halinde seçenekler olacak çeşitli analizlerin ama kutular yani seçenekler (KARTLAR) çok güzel olsun simgelerle birlikte mesela tool simgesi var bir kartta altta ne olduğu falan böyle seçenekler çok güzel bir biçimde bulunsun hepsi.
+
+Ayarlarda 5 farklı tema ve 5 farklı dil seçeneği olsun, tüm herşeyi dil ve tema seçeneklerine uyumlu yapmayı sakın ihmal etme tüm metinleri falan değişken yap tüm renkleri falanda çok güzel tema ve dil geçişleri olsun uygulama çok güzel olsun. 5 Dil = (Türkçe, İngilizce, Arapça, Rusça, Çince) Temaları kendi kafana göre yap en güzel biçimde.
+
+Yapay Zeka iconuna tıklandığında güzel bir yapay zeka kısmı gelsin mesaj gönderme yeri falan sen sadece tema ile ilgili kısımları yap sakın gerçek bir yapay zeka ekleme veya ayarlama yapma onları ben yapacağım sonra sadece temayı yap mesaj gönderme yeri falan filan.
+
+İşte anladığın gibi herşeyi çok güzel bir biçimde ayarla tüm yaratıcı zekanı bilgini iradeni çalıştır sen bu konuda çığır açmış bir yapay zekasın elinden geleni yap dashboard.py için. İstediğin gerekli tüm kütüphaneleri kullan yeterki en güzel biçimde olsun. Baştan sona herşeyi planlı yap yoksa sonra çeviri ve tema özelliklerinde sıkıntılar olur.

@@ -107,4 +107,13 @@ class LocalizationManager(QObject):
         Returns:
             str: The translated text or the default if not found
         """
-        return self.current_language.get(key, default or key)
+        language = self.current_language
+        keys = key.split('.')
+        
+        for k in keys:
+            if isinstance(language, dict) and k in language:
+                language = language[k]
+            else:
+                return default or key
+        
+        return language if isinstance(language, str) else default or key

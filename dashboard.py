@@ -20,33 +20,59 @@ Features:
 import os
 import sys
 import json
-from typing import Dict, List, Optional, Tuple, Union
 import random
+from typing import Dict, List, Optional, Tuple, Union, Any
+import traceback
 
-# PyQt imports
-from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QFrame, QScrollArea, QStackedWidget,
-    QSplitter, QSpacerItem, QSizePolicy, QToolButton, QLineEdit, 
-    QTextEdit, QTabWidget, QTabBar, QGraphicsDropShadowEffect,
-    QCheckBox, QComboBox, QRadioButton, QSlider
-)
-from PyQt6.QtCore import (
-    Qt, QSize, QRect, QPoint, QPropertyAnimation, 
-    QEasingCurve, QTimer, QEvent, QObject, pyqtSignal, 
-    pyqtProperty, pyqtSlot, QThread, QUrl
-)
-from PyQt6.QtGui import (
-    QIcon, QPixmap, QFont, QColor, QPalette, QLinearGradient, 
-    QPainter, QPen, QBrush, QPainterPath, QCursor, QFontDatabase,
-    QMovie, QTransform, QPolygon, QImage, QResizeEvent, QKeyEvent
-)
-from PyQt6.QtSvg import QSvgRenderer
+# QT imports - headless mode for Replit
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+os.environ["XDG_RUNTIME_DIR"] = "/tmp/runtime-runner"
 
-# Import resources
-from resources.themes.theme_manager import ThemeManager
-from resources.localization.localization_manager import LocalizationManager
-from resources.icons.icons import IconProvider
+try:
+    from PyQt6.QtWidgets import (
+        QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+        QLabel, QPushButton, QFrame, QScrollArea, QStackedWidget,
+        QSplitter, QSpacerItem, QSizePolicy, QToolButton, QLineEdit, 
+        QTextEdit, QTabWidget, QTabBar, QGraphicsDropShadowEffect,
+        QCheckBox, QComboBox, QRadioButton, QSlider, QGridLayout
+    )
+    from PyQt6.QtCore import (
+        Qt, QSize, QRect, QPoint, QPropertyAnimation, 
+        QEasingCurve, QTimer, QEvent, QObject, pyqtSignal, 
+        pyqtProperty, pyqtSlot, QThread, QUrl
+    )
+    from PyQt6.QtGui import (
+        QIcon, QPixmap, QFont, QColor, QPalette, QLinearGradient, 
+        QPainter, QPen, QBrush, QPainterPath, QCursor, QFontDatabase,
+        QTransform, QPolygon, QImage, QResizeEvent, QKeyEvent
+    )
+    from PyQt6.QtSvg import QSvgRenderer
+except ImportError as e:
+    print(f"Error importing PyQt6: {e}")
+    print("This application requires PyQt6 and is designed for GUI environments.")
+    print("On Replit, the application will generate a dashboard.py file with all functionality,")
+    print("but cannot render the UI due to environment limitations.")
+    sys.exit(1)
+
+# Setup resources path
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+RESOURCES_DIR = os.path.join(BASE_DIR, "resources")
+
+# Import local modules - catch any import errors 
+try:
+    # Import resources - make sure paths exist first
+    os.makedirs(os.path.join(RESOURCES_DIR, "themes"), exist_ok=True)
+    os.makedirs(os.path.join(RESOURCES_DIR, "localization"), exist_ok=True)
+    os.makedirs(os.path.join(RESOURCES_DIR, "icons"), exist_ok=True)
+    
+    sys.path.append(BASE_DIR)
+    from resources.themes.theme_manager import ThemeManager
+    from resources.localization.localization_manager import LocalizationManager
+    from resources.icons.icons import IconProvider
+except ImportError as e:
+    print(f"Error importing resource modules: {e}")
+    traceback.print_exc()
+    sys.exit(1)
 
 # Constants
 APP_NAME = "NovaSEO"
@@ -350,8 +376,11 @@ class DashboardCard(QFrame):
         card_key = f"dashboard.cards.{self.card_type}"
         
         # Update title and description with translated text
-        self.title_label.setText(lang.get(f"{card_key}.title", self.title))
-        self.desc_label.setText(lang.get(f"{card_key}.description", self.description))
+        title = lang.get(f"{card_key}.title", self.title)
+        desc = lang.get(f"{card_key}.description", self.description)
+        
+        self.title_label.setText(title)
+        self.desc_label.setText(desc)
     
     def paintEvent(self, event):
         """Custom paint event to handle hover effects."""
@@ -467,16 +496,16 @@ class ChatMessage(QFrame):
                 border-radius: 15px;
                 padding: 10px;
             }}
-            
             QLabel {{
                 color: {text_color};
                 font-size: 14px;
-                text-align: {align};
             }}
         """)
         
-        # Set maximum width
-        self.message_bubble.setMaximumWidth(400)
+        # Set maximum width for message bubble (70% of parent)
+        if self.parentWidget():
+            max_width = int(self.parentWidget().width() * 0.7)
+            self.message_bubble.setMaximumWidth(max_width)
 
 
 class AIChat(QWidget):
@@ -490,93 +519,93 @@ class AIChat(QWidget):
         # Main layout
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(20, 20, 20, 20)
-        self.layout.setSpacing(20)
+        self.layout.setSpacing(15)
         
         # Chat title
-        self.title_label = QLabel("Nova AI Assistant")
+        self.title_label = QLabel(self.loc_manager.get_text("ai.title", "AI Assistant"))
         self.title_label.setObjectName("chat_title")
-        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         # Chat message area with scroll
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.chat_scroll = QScrollArea()
+        self.chat_scroll.setWidgetResizable(True)
+        self.chat_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.chat_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         
         self.chat_container = QWidget()
+        self.chat_container.setObjectName("chat_container")
         self.chat_layout = QVBoxLayout(self.chat_container)
+        self.chat_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.chat_layout.setSpacing(15)
-        self.chat_layout.addStretch()
         
-        self.scroll_area.setWidget(self.chat_container)
+        self.chat_scroll.setWidget(self.chat_container)
         
         # Input area
-        self.input_frame = QFrame()
-        self.input_frame.setObjectName("input_frame")
-        self.input_layout = QHBoxLayout(self.input_frame)
+        self.input_container = QFrame()
+        self.input_container.setObjectName("input_container")
+        self.input_layout = QHBoxLayout(self.input_container)
+        self.input_layout.setContentsMargins(10, 10, 10, 10)
         
-        self.chat_input = QTextEdit()
-        self.chat_input.setObjectName("chat_input")
-        self.chat_input.setPlaceholderText("Type your message here...")
-        self.chat_input.setAcceptRichText(False)
-        self.chat_input.setMaximumHeight(100)
+        self.input_field = QTextEdit()
+        self.input_field.setObjectName("input_field")
+        self.input_field.setPlaceholderText(self.loc_manager.get_text("ai.input_placeholder", "Type your message here..."))
+        self.input_field.setMaximumHeight(100)
         
         self.send_button = QPushButton()
         self.send_button.setObjectName("send_button")
-        self.send_button.setFixedSize(QSize(40, 40))
         self.send_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.send_button.setFixedSize(QSize(40, 40))
         self.send_button.clicked.connect(self.send_message)
         
-        self.input_layout.addWidget(self.chat_input)
+        self.input_layout.addWidget(self.input_field)
         self.input_layout.addWidget(self.send_button)
         
         # Add all components to main layout
         self.layout.addWidget(self.title_label)
-        self.layout.addWidget(self.scroll_area)
-        self.layout.addWidget(self.input_frame)
+        self.layout.addWidget(self.chat_scroll, 1)
+        self.layout.addWidget(self.input_container)
+        
+        # Welcome message
+        self.add_message("Hello! I'm your AI assistant for SEO and backlink analysis. How can I help you today?", False)
         
         # Connect signals
         self.theme_manager.signal_changed.connect(self.update_styling)
         self.loc_manager.signal_changed.connect(self.update_translation)
+        self.input_field.textChanged.connect(self.adjust_input_height)
         
-        # Initial setup
+        # Set up initial styling
         self.update_styling()
         self.update_translation()
-        
-        # Add welcome message
-        self.add_message("Welcome to the NovaSEO AI Assistant! How can I help you today?", False)
     
     def update_styling(self, *args):
         """Update chat styling based on current theme."""
         theme = self.theme_manager.current_theme
         
-        # Chat styles
+        # Chat style
         style = f"""
             #chat_title {{
                 color: {theme['chat']['title_color']};
-                font-size: 22px;
+                font-size: 24px;
                 font-weight: bold;
                 margin-bottom: 10px;
             }}
             
-            QScrollArea {{
+            #chat_container {{
                 background-color: {theme['chat']['bg_color']};
                 border-radius: 10px;
             }}
             
-            #input_frame {{
+            #input_container {{
                 background-color: {theme['chat']['input_bg_color']};
                 border-radius: 10px;
-                padding: 5px;
+                border: 1px solid {theme['chat']['input_border_color']};
             }}
             
-            #chat_input {{
+            #input_field {{
                 background-color: {theme['chat']['input_field_color']};
                 color: {theme['chat']['input_text_color']};
                 border-radius: 5px;
-                padding: 10px;
-                font-size: 14px;
                 border: 1px solid {theme['chat']['input_border_color']};
+                padding: 8px;
             }}
             
             #send_button {{
@@ -595,58 +624,73 @@ class AIChat(QWidget):
         send_icon = IconProvider.get_themed_icon("send", theme['chat']['button_icon_color'])
         self.send_button.setIcon(send_icon)
         self.send_button.setIconSize(QSize(20, 20))
+        
+        # Update existing messages
+        for i in range(self.chat_layout.count()):
+            widget = self.chat_layout.itemAt(i).widget()
+            if isinstance(widget, ChatMessage):
+                widget.update_styling()
     
     def update_translation(self, *args):
         """Update chat text based on current language."""
-        lang = self.loc_manager.current_language
+        # Update title
+        self.title_label.setText(self.loc_manager.get_text("ai.title", "AI Assistant"))
         
-        # Update title and placeholder with translated text
-        self.title_label.setText(lang.get("ai.title", "Nova AI Assistant"))
-        self.chat_input.setPlaceholderText(lang.get("ai.input_placeholder", "Type your message here..."))
+        # Update input placeholder
+        self.input_field.setPlaceholderText(self.loc_manager.get_text("ai.input_placeholder", "Type your message here..."))
     
     def add_message(self, message, is_user=True):
         """Add a new message to the chat."""
         chat_message = ChatMessage(message, is_user, self)
-        # Insert before the stretch at the end
-        self.chat_layout.insertWidget(self.chat_layout.count() - 1, chat_message)
+        self.chat_layout.addWidget(chat_message)
         
-        # Scroll to bottom
+        # Scroll to the bottom
         QTimer.singleShot(100, self.scroll_to_bottom)
+        
+        return chat_message
     
     def scroll_to_bottom(self):
         """Scroll the chat area to the bottom."""
-        scrollbar = self.scroll_area.verticalScrollBar()
+        scrollbar = self.chat_scroll.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
     
     def send_message(self):
         """Send the current message in the input field."""
-        message = self.chat_input.toPlainText().strip()
-        if not message:
-            return
-        
-        # Add user message
-        self.add_message(message, True)
-        
-        # Clear input
-        self.chat_input.clear()
-        
-        # Simulate AI response (theme test)
-        self.simulate_ai_response(message)
+        message = self.input_field.toPlainText().strip()
+        if message:
+            # Add user message
+            self.add_message(message, True)
+            
+            # Clear input field
+            self.input_field.clear()
+            
+            # Simulate AI response (for demo purposes)
+            QTimer.singleShot(1000, lambda: self.simulate_ai_response(message))
     
     def simulate_ai_response(self, message):
         """Simulate an AI response for testing the theme."""
-        # Generate a response about the current theme
-        theme_name = self.theme_manager.current_theme_name
-        language_name = self.loc_manager.current_language_code
+        # Sample responses for SEO related questions
+        responses = [
+            "Based on my analysis, your website's SEO score has improved by 15% in the last month. Keep up the good work!",
+            "I've detected 3 new backlinks to your site from high-authority domains. This is great for your ranking!",
+            "Your main competitors in this space are example.com, competitor.com, and industry-leader.com. I can provide a detailed analysis if you'd like.",
+            "The top keywords for your niche include 'digital marketing strategies', 'SEO best practices', and 'content optimization techniques'.",
+            "I recommend focusing on improving your website's loading speed as it currently takes 3.5 seconds, which is above the recommended 2-second threshold.",
+            "Your content has a good keyword density, but could use more internal linking to improve site structure.",
+            "I've analyzed your backlink profile and found that 82% of your links are from relevant industry sites, which is excellent for your domain authority."
+        ]
         
-        response = f"""
-        I notice you're using the <b>{theme_name}</b> theme and <b>{language_name}</b> language.
+        # Select a random response
+        ai_response = random.choice(responses)
         
-        How do you like the color scheme? I can provide some analysis on your SEO settings if you'd like.
-        """
-        
-        # Delayed response to simulate processing
-        QTimer.singleShot(1000, lambda: self.add_message(response, False))
+        # Add AI message
+        self.add_message(ai_response, False)
+    
+    def adjust_input_height(self):
+        """Adjust the height of the input field based on content."""
+        doc_height = self.input_field.document().size().height()
+        new_height = min(max(50, doc_height + 20), 100)  # Between 50 and 100 pixels
+        self.input_field.setFixedHeight(int(new_height))
 
 
 class SettingsPage(QWidget):
@@ -660,101 +704,84 @@ class SettingsPage(QWidget):
         # Main layout
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(30, 30, 30, 30)
-        self.layout.setSpacing(30)
+        self.layout.setSpacing(20)
         
-        # Settings title
-        self.title_label = QLabel("Settings")
+        # Title
+        self.title_label = QLabel(self.loc_manager.get_text("settings.title", "Settings"))
         self.title_label.setObjectName("settings_title")
         
         # Theme section
-        self.theme_frame = QFrame()
-        self.theme_frame.setObjectName("settings_section")
-        self.theme_layout = QVBoxLayout(self.theme_frame)
+        self.theme_section = QFrame()
+        self.theme_section.setObjectName("settings_section")
+        self.theme_layout = QVBoxLayout(self.theme_section)
         
-        self.theme_title = QLabel("Theme")
+        self.theme_title = QLabel(self.loc_manager.get_text("settings.theme", "Theme"))
         self.theme_title.setObjectName("section_title")
         
-        self.theme_options = QFrame()
-        self.theme_options_layout = QHBoxLayout(self.theme_options)
-        self.theme_options_layout.setSpacing(20)
+        self.theme_combo = QComboBox()
+        self.theme_combo.setObjectName("theme_combo")
         
-        # Create theme buttons
-        self.theme_buttons = {}
-        theme_names = ["cyber", "matrix", "ocean", "blood", "royal"]
+        # Add theme options
+        self.theme_combo.addItem(self.loc_manager.get_text("settings.themes.cyber", "Cyber"), "cyber")
+        self.theme_combo.addItem(self.loc_manager.get_text("settings.themes.matrix", "Matrix"), "matrix")
+        self.theme_combo.addItem(self.loc_manager.get_text("settings.themes.ocean", "Ocean"), "ocean")
+        self.theme_combo.addItem(self.loc_manager.get_text("settings.themes.blood", "Blood"), "blood")
+        self.theme_combo.addItem(self.loc_manager.get_text("settings.themes.royal", "Royal"), "royal")
         
-        for theme_name in theme_names:
-            theme_button = QRadioButton(theme_name.capitalize())
-            theme_button.setObjectName(f"theme_{theme_name}")
-            theme_button.toggled.connect(lambda checked, name=theme_name: 
-                                         self.change_theme(name) if checked else None)
-            self.theme_buttons[theme_name] = theme_button
-            self.theme_options_layout.addWidget(theme_button)
-        
-        # Set current theme button checked
-        current_theme = self.theme_manager.current_theme_name
-        if current_theme in self.theme_buttons:
-            self.theme_buttons[current_theme].setChecked(True)
+        # Set current theme
+        index = self.theme_combo.findData(self.theme_manager.current_theme_name)
+        if index >= 0:
+            self.theme_combo.setCurrentIndex(index)
         
         self.theme_layout.addWidget(self.theme_title)
-        self.theme_layout.addWidget(self.theme_options)
+        self.theme_layout.addWidget(self.theme_combo)
         
         # Language section
-        self.lang_frame = QFrame()
-        self.lang_frame.setObjectName("settings_section")
-        self.lang_layout = QVBoxLayout(self.lang_frame)
+        self.lang_section = QFrame()
+        self.lang_section.setObjectName("settings_section")
+        self.lang_layout = QVBoxLayout(self.lang_section)
         
-        self.lang_title = QLabel("Language")
+        self.lang_title = QLabel(self.loc_manager.get_text("settings.language", "Language"))
         self.lang_title.setObjectName("section_title")
         
-        self.lang_options = QFrame()
-        self.lang_options_layout = QHBoxLayout(self.lang_options)
-        self.lang_options_layout.setSpacing(20)
+        self.lang_combo = QComboBox()
+        self.lang_combo.setObjectName("lang_combo")
         
-        # Create language buttons
-        self.lang_buttons = {}
-        lang_data = [
-            ("en", "English"),
-            ("tr", "Türkçe"),
-            ("ar", "العربية"),
-            ("ru", "Русский"),
-            ("cn", "中文")
-        ]
+        # Add language options
+        self.lang_combo.addItem(self.loc_manager.get_text("settings.languages.en", "English"), "en")
+        self.lang_combo.addItem(self.loc_manager.get_text("settings.languages.tr", "Turkish"), "tr")
+        self.lang_combo.addItem(self.loc_manager.get_text("settings.languages.ar", "Arabic"), "ar")
+        self.lang_combo.addItem(self.loc_manager.get_text("settings.languages.ru", "Russian"), "ru")
+        self.lang_combo.addItem(self.loc_manager.get_text("settings.languages.cn", "Chinese"), "cn")
         
-        for lang_code, lang_name in lang_data:
-            lang_button = QRadioButton(lang_name)
-            lang_button.setObjectName(f"lang_{lang_code}")
-            lang_button.toggled.connect(lambda checked, code=lang_code:
-                                       self.change_language(code) if checked else None)
-            self.lang_buttons[lang_code] = lang_button
-            self.lang_options_layout.addWidget(lang_button)
-        
-        # Set current language button checked
-        current_lang = self.loc_manager.current_language_code
-        if current_lang in self.lang_buttons:
-            self.lang_buttons[current_lang].setChecked(True)
+        # Set current language
+        index = self.lang_combo.findData(self.loc_manager.current_language_code)
+        if index >= 0:
+            self.lang_combo.setCurrentIndex(index)
         
         self.lang_layout.addWidget(self.lang_title)
-        self.lang_layout.addWidget(self.lang_options)
+        self.lang_layout.addWidget(self.lang_combo)
         
-        # Add all sections to main layout
+        # Add sections to main layout
         self.layout.addWidget(self.title_label)
-        self.layout.addWidget(self.theme_frame)
-        self.layout.addWidget(self.lang_frame)
+        self.layout.addWidget(self.theme_section)
+        self.layout.addWidget(self.lang_section)
         self.layout.addStretch()
         
         # Connect signals
+        self.theme_combo.currentIndexChanged.connect(self.change_theme)
+        self.lang_combo.currentIndexChanged.connect(self.change_language)
         self.theme_manager.signal_changed.connect(self.update_styling)
         self.loc_manager.signal_changed.connect(self.update_translation)
         
-        # Initial setup
+        # Initial styling
         self.update_styling()
-        self.update_translation()
     
     def update_styling(self, *args):
         """Update settings page styling based on current theme."""
         theme = self.theme_manager.current_theme
         
-        # Settings styles
+        # Settings style
         style = f"""
             #settings_title {{
                 color: {theme['settings']['title_color']};
@@ -766,7 +793,8 @@ class SettingsPage(QWidget):
             #settings_section {{
                 background-color: {theme['settings']['section_bg_color']};
                 border-radius: 10px;
-                padding: 20px;
+                padding: 15px;
+                margin-bottom: 10px;
                 border: 1px solid {theme['settings']['border_color']};
             }}
             
@@ -774,70 +802,63 @@ class SettingsPage(QWidget):
                 color: {theme['settings']['section_title_color']};
                 font-size: 18px;
                 font-weight: bold;
-                margin-bottom: 15px;
+                margin-bottom: 10px;
             }}
             
-            QRadioButton {{
+            QComboBox {{
+                background-color: {theme['main']['bg_color']};
                 color: {theme['settings']['text_color']};
-                font-size: 14px;
-                spacing: 8px;
+                border: 1px solid {theme['settings']['control_border_color']};
+                border-radius: 5px;
+                padding: 8px;
+                min-height: 30px;
             }}
             
-            QRadioButton::indicator {{
-                width: 18px;
-                height: 18px;
-                border-radius: 9px;
-                border: 2px solid {theme['settings']['control_border_color']};
+            QComboBox:hover {{
+                border: 1px solid {theme['accent_color']};
             }}
             
-            QRadioButton::indicator:checked {{
-                background-color: {theme['accent_color']};
-                border: 2px solid {theme['accent_color']};
-            }}
-            
-            QRadioButton::indicator:unchecked:hover {{
-                border: 2px solid {theme['accent_color']};
+            QComboBox::drop-down {{
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 30px;
+                border-left: 1px solid {theme['settings']['control_border_color']};
             }}
         """
         self.setStyleSheet(style)
-        
-        # Add visual indication for the current theme
-        for theme_name, button in self.theme_buttons.items():
-            # Add a preview color next to the theme name
-            if theme_name == "cyber":
-                color = "#9d4edd"  # Purple
-            elif theme_name == "matrix":
-                color = "#00ff41"  # Green
-            elif theme_name == "ocean":
-                color = "#0096c7"  # Blue
-            elif theme_name == "blood":
-                color = "#d00000"  # Red
-            elif theme_name == "royal":
-                color = "#d4af37"  # Gold
-            
-            button.setStyleSheet(button.styleSheet() + f"""
-                QRadioButton {{
-                    padding-left: 8px;
-                    border-left: 3px solid {color};
-                }}
-            """)
     
     def update_translation(self, *args):
         """Update settings text based on current language."""
-        lang = self.loc_manager.current_language
+        # Update titles
+        self.title_label.setText(self.loc_manager.get_text("settings.title", "Settings"))
+        self.theme_title.setText(self.loc_manager.get_text("settings.theme", "Theme"))
+        self.lang_title.setText(self.loc_manager.get_text("settings.language", "Language"))
         
-        # Update titles with translated text
-        self.title_label.setText(lang.get("settings.title", "Settings"))
-        self.theme_title.setText(lang.get("settings.theme", "Theme"))
-        self.lang_title.setText(lang.get("settings.language", "Language"))
+        # Update theme options (blocking signals to avoid triggering change)
+        self.theme_combo.blockSignals(True)
+        for i in range(self.theme_combo.count()):
+            theme_id = self.theme_combo.itemData(i)
+            self.theme_combo.setItemText(i, self.loc_manager.get_text(f"settings.themes.{theme_id}", theme_id.capitalize()))
+        self.theme_combo.blockSignals(False)
+        
+        # Update language options (blocking signals to avoid triggering change)
+        self.lang_combo.blockSignals(True)
+        for i in range(self.lang_combo.count()):
+            lang_id = self.lang_combo.itemData(i)
+            self.lang_combo.setItemText(i, self.loc_manager.get_text(f"settings.languages.{lang_id}", lang_id.upper()))
+        self.lang_combo.blockSignals(False)
     
-    def change_theme(self, theme_name):
+    def change_theme(self, index):
         """Change the current theme."""
-        self.theme_manager.set_theme(theme_name)
+        theme_id = self.theme_combo.itemData(index)
+        if theme_id:
+            self.theme_manager.set_theme(theme_id)
     
-    def change_language(self, lang_code):
+    def change_language(self, index):
         """Change the current language."""
-        self.loc_manager.set_language(lang_code)
+        lang_id = self.lang_combo.itemData(index)
+        if lang_id:
+            self.loc_manager.set_language(lang_id)
 
 
 class HelpPage(QWidget):
@@ -853,86 +874,58 @@ class HelpPage(QWidget):
         self.layout.setContentsMargins(30, 30, 30, 30)
         self.layout.setSpacing(20)
         
-        # Help title
-        self.title_label = QLabel("Help & Documentation")
+        # Title
+        self.title_label = QLabel(self.loc_manager.get_text("help.title", "Help & Documentation"))
         self.title_label.setObjectName("help_title")
         
-        # Help content
-        self.help_scroll = QScrollArea()
-        self.help_scroll.setWidgetResizable(True)
-        self.help_scroll.setFrameShape(QFrame.Shape.NoFrame)
-        
-        self.help_content = QWidget()
-        self.content_layout = QVBoxLayout(self.help_content)
-        self.content_layout.setSpacing(20)
-        
         # About section
-        self.about_frame = QFrame()
-        self.about_frame.setObjectName("help_section")
-        self.about_layout = QVBoxLayout(self.about_frame)
+        self.about_section = QFrame()
+        self.about_section.setObjectName("help_section")
+        self.about_layout = QVBoxLayout(self.about_section)
         
-        self.about_title = QLabel("About NovaSEO")
+        self.about_title = QLabel(self.loc_manager.get_text("help.about.title", "About NovaSEO"))
         self.about_title.setObjectName("section_title")
         
-        self.about_text = QLabel(
-            "NovaSEO is a powerful SEO and backlink analysis tool designed "
-            "to help you optimize your website and improve your search engine rankings. "
-            "With advanced features and a user-friendly interface, NovaSEO makes it easy "
-            "to analyze your site's performance and identify opportunities for improvement."
-        )
-        self.about_text.setObjectName("help_text")
-        self.about_text.setWordWrap(True)
+        self.about_content = QLabel(self.loc_manager.get_text("help.about.content", ""))
+        self.about_content.setObjectName("help_content")
+        self.about_content.setWordWrap(True)
         
         self.about_layout.addWidget(self.about_title)
-        self.about_layout.addWidget(self.about_text)
+        self.about_layout.addWidget(self.about_content)
         
         # Features section
-        self.features_frame = QFrame()
-        self.features_frame.setObjectName("help_section")
-        self.features_layout = QVBoxLayout(self.features_frame)
+        self.features_section = QFrame()
+        self.features_section.setObjectName("help_section")
+        self.features_layout = QVBoxLayout(self.features_section)
         
-        self.features_title = QLabel("Key Features")
+        self.features_title = QLabel(self.loc_manager.get_text("help.features.title", "Key Features"))
         self.features_title.setObjectName("section_title")
         
-        self.features_text = QLabel(
-            "• Comprehensive SEO Analysis\n"
-            "• Detailed Backlink Mapping\n"
-            "• Competitor Analysis\n"
-            "• Keyword Research\n"
-            "• AI-Powered Recommendations\n"
-            "• Performance Tracking\n"
-            "• Custom Reports\n"
-            "• Multi-Language Support"
-        )
-        self.features_text.setObjectName("help_text")
+        self.features_content = QLabel(self.loc_manager.get_text("help.features.content", ""))
+        self.features_content.setObjectName("help_content")
+        self.features_content.setTextFormat(Qt.TextFormat.PlainText)
         
         self.features_layout.addWidget(self.features_title)
-        self.features_layout.addWidget(self.features_text)
+        self.features_layout.addWidget(self.features_content)
         
-        # Add all sections to content layout
-        self.content_layout.addWidget(self.about_frame)
-        self.content_layout.addWidget(self.features_frame)
-        self.content_layout.addStretch()
-        
-        self.help_scroll.setWidget(self.help_content)
-        
-        # Add all components to main layout
+        # Add sections to main layout
         self.layout.addWidget(self.title_label)
-        self.layout.addWidget(self.help_scroll)
+        self.layout.addWidget(self.about_section)
+        self.layout.addWidget(self.features_section)
+        self.layout.addStretch()
         
         # Connect signals
         self.theme_manager.signal_changed.connect(self.update_styling)
         self.loc_manager.signal_changed.connect(self.update_translation)
         
-        # Initial setup
+        # Initial styling
         self.update_styling()
-        self.update_translation()
     
     def update_styling(self, *args):
         """Update help page styling based on current theme."""
         theme = self.theme_manager.current_theme
         
-        # Help styles
+        # Help style
         style = f"""
             #help_title {{
                 color: {theme['help']['title_color']};
@@ -944,7 +937,8 @@ class HelpPage(QWidget):
             #help_section {{
                 background-color: {theme['help']['section_bg_color']};
                 border-radius: 10px;
-                padding: 20px;
+                padding: 15px;
+                margin-bottom: 10px;
                 border: 1px solid {theme['help']['border_color']};
             }}
             
@@ -952,42 +946,27 @@ class HelpPage(QWidget):
                 color: {theme['help']['section_title_color']};
                 font-size: 18px;
                 font-weight: bold;
-                margin-bottom: 15px;
+                margin-bottom: 10px;
             }}
             
-            #help_text {{
+            #help_content {{
                 color: {theme['help']['text_color']};
                 font-size: 14px;
-                line-height: 1.6;
+                line-height: 1.5;
             }}
         """
         self.setStyleSheet(style)
     
     def update_translation(self, *args):
         """Update help text based on current language."""
-        lang = self.loc_manager.current_language
+        # Update titles
+        self.title_label.setText(self.loc_manager.get_text("help.title", "Help & Documentation"))
+        self.about_title.setText(self.loc_manager.get_text("help.about.title", "About NovaSEO"))
+        self.features_title.setText(self.loc_manager.get_text("help.features.title", "Key Features"))
         
-        # Update titles and content with translated text
-        self.title_label.setText(lang.get("help.title", "Help & Documentation"))
-        self.about_title.setText(lang.get("help.about.title", "About NovaSEO"))
-        self.about_text.setText(lang.get("help.about.content", 
-            "NovaSEO is a powerful SEO and backlink analysis tool designed "
-            "to help you optimize your website and improve your search engine rankings. "
-            "With advanced features and a user-friendly interface, NovaSEO makes it easy "
-            "to analyze your site's performance and identify opportunities for improvement."
-        ))
-        
-        self.features_title.setText(lang.get("help.features.title", "Key Features"))
-        self.features_text.setText(lang.get("help.features.content",
-            "• Comprehensive SEO Analysis\n"
-            "• Detailed Backlink Mapping\n"
-            "• Competitor Analysis\n"
-            "• Keyword Research\n"
-            "• AI-Powered Recommendations\n"
-            "• Performance Tracking\n"
-            "• Custom Reports\n"
-            "• Multi-Language Support"
-        ))
+        # Update content
+        self.about_content.setText(self.loc_manager.get_text("help.about.content", ""))
+        self.features_content.setText(self.loc_manager.get_text("help.features.content", ""))
 
 
 class Dashboard(QMainWindow):
@@ -995,316 +974,271 @@ class Dashboard(QMainWindow):
     
     def __init__(self):
         super().__init__()
-        # Initialize managers
         self.theme_manager = ThemeManager()
         self.loc_manager = LocalizationManager()
         
-        # Setup window properties
-        self.setWindowTitle(f"{APP_NAME} Dashboard")
+        # Set window properties
+        self.setWindowTitle(f"{APP_NAME} - {self.loc_manager.get_text('window.title', 'Dashboard')}")
         self.resize(1280, 720)
-        self.setMinimumSize(1024, 700)
         
-        # Create central widget and main layout
+        # Central widget and main layout
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.main_layout = QHBoxLayout(self.central_widget)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
         
-        # Create sidebar
+        # Create sidebar and content area
         self.create_sidebar()
-        
-        # Create main content area
         self.create_content_area()
         
-        # Create pages
-        self.create_dashboard_page()
-        self.create_ai_page()
-        self.create_settings_page()
-        self.create_help_page()
+        # Add to main layout
+        self.main_layout.addWidget(self.sidebar_container)
+        self.main_layout.addWidget(self.content_container, 1)
         
-        # Add initial home tab
-        self.tab_widget.add_tab(self.dashboard_page, "Dashboard", "home")
-        
-        # Connect signals
+        # Connect theme and language signals
         self.theme_manager.signal_changed.connect(self.update_styling)
         self.loc_manager.signal_changed.connect(self.update_translation)
         
-        # Initial setup
+        # Initial styling
         self.update_styling()
-        self.update_translation()
         
-        # Set home button as active
-        self.sidebar_buttons["home"].setActive(True)
+        # Initial tab
+        self.switch_page("home")
     
     def create_sidebar(self):
         """Create the sidebar with navigation buttons."""
-        # Sidebar container
-        self.sidebar = QFrame()
-        self.sidebar.setObjectName("sidebar")
-        self.sidebar.setFixedWidth(200)
+        self.sidebar_container = QFrame()
+        self.sidebar_container.setObjectName("sidebar")
+        self.sidebar_container.setFixedWidth(220)
         
-        # Sidebar layout
-        self.sidebar_layout = QVBoxLayout(self.sidebar)
-        self.sidebar_layout.setContentsMargins(10, 20, 10, 20)
+        self.sidebar_layout = QVBoxLayout(self.sidebar_container)
+        self.sidebar_layout.setContentsMargins(15, 30, 15, 15)
         self.sidebar_layout.setSpacing(10)
         
-        # App title
+        # App logo and title
+        self.logo_layout = QHBoxLayout()
         self.app_title = QLabel(APP_NAME)
         self.app_title.setObjectName("app_title")
-        self.app_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.logo_layout.addWidget(self.app_title)
+        self.logo_layout.addStretch()
         
-        # Sidebar buttons
-        self.sidebar_buttons = {}
+        # Navigation buttons
+        self.home_button = SidebarButton("home", self.loc_manager.get_text("sidebar.home", "Dashboard"))
+        self.ai_button = SidebarButton("robot", self.loc_manager.get_text("sidebar.ai", "AI Assistant"))
+        self.settings_button = SidebarButton("settings", self.loc_manager.get_text("sidebar.settings", "Settings"))
+        self.help_button = SidebarButton("help", self.loc_manager.get_text("sidebar.help", "Help"))
         
-        # Home button
-        self.home_button = SidebarButton("home", "Dashboard", self)
+        # Connect button signals
         self.home_button.clicked.connect(lambda: self.switch_page("home"))
-        self.sidebar_buttons["home"] = self.home_button
-        
-        # AI button
-        self.ai_button = SidebarButton("robot", "AI Assistant", self)
         self.ai_button.clicked.connect(lambda: self.switch_page("ai"))
-        self.sidebar_buttons["ai"] = self.ai_button
-        
-        # Settings button
-        self.settings_button = SidebarButton("settings", "Settings", self)
         self.settings_button.clicked.connect(lambda: self.switch_page("settings"))
-        self.sidebar_buttons["settings"] = self.settings_button
-        
-        # Help button
-        self.help_button = SidebarButton("help", "Help", self)
         self.help_button.clicked.connect(lambda: self.switch_page("help"))
-        self.sidebar_buttons["help"] = self.help_button
         
-        # Add version at bottom
+        # Version label
         self.version_label = QLabel(f"v{VERSION}")
         self.version_label.setObjectName("version_label")
-        self.version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.version_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         
         # Add widgets to sidebar layout
-        self.sidebar_layout.addWidget(self.app_title)
-        self.sidebar_layout.addSpacing(20)
+        self.sidebar_layout.addLayout(self.logo_layout)
+        self.sidebar_layout.addSpacing(30)
         self.sidebar_layout.addWidget(self.home_button)
         self.sidebar_layout.addWidget(self.ai_button)
         self.sidebar_layout.addWidget(self.settings_button)
         self.sidebar_layout.addWidget(self.help_button)
         self.sidebar_layout.addStretch()
         self.sidebar_layout.addWidget(self.version_label)
-        
-        # Add sidebar to main layout
-        self.main_layout.addWidget(self.sidebar)
     
     def create_content_area(self):
         """Create the main content area with tab widget."""
-        # Content container
-        self.content_area = QFrame()
-        self.content_area.setObjectName("content_area")
+        self.content_container = QFrame()
+        self.content_container.setObjectName("content_container")
         
-        # Content layout
-        self.content_layout = QVBoxLayout(self.content_area)
+        self.content_layout = QVBoxLayout(self.content_container)
         self.content_layout.setContentsMargins(0, 0, 0, 0)
         self.content_layout.setSpacing(0)
         
-        # Tab widget for multiple pages
+        # Tab widget
         self.tab_widget = TabWidget()
         self.tab_widget.currentChanged.connect(self.handle_tab_change)
         
-        # Add tab widget to content layout
-        self.content_layout.addWidget(self.tab_widget)
+        # Create pages
+        self.dashboard_page = QWidget()
+        self.create_dashboard_page()
         
-        # Add content area to main layout
-        self.main_layout.addWidget(self.content_area)
+        self.ai_page = AIChat()
+        self.settings_page = SettingsPage()
+        self.help_page = HelpPage()
+        
+        # Add to content layout
+        self.content_layout.addWidget(self.tab_widget)
     
     def create_dashboard_page(self):
         """Create the main dashboard page with cards."""
-        self.dashboard_page = QWidget()
         self.dashboard_layout = QVBoxLayout(self.dashboard_page)
         self.dashboard_layout.setContentsMargins(30, 30, 30, 30)
         self.dashboard_layout.setSpacing(20)
         
         # Dashboard title
-        self.dashboard_title = QLabel("Dashboard")
-        self.dashboard_title.setObjectName("page_title")
+        self.dashboard_title = QLabel(self.loc_manager.get_text("dashboard.title", "Dashboard"))
+        self.dashboard_title.setObjectName("dashboard_title")
         
-        # Cards grid layout
-        self.cards_container = QWidget()
-        self.cards_grid = QHBoxLayout(self.cards_container)
-        self.cards_grid.setContentsMargins(0, 0, 0, 0)
-        self.cards_grid.setSpacing(20)
-        
-        # Left column
-        self.left_column = QVBoxLayout()
-        self.left_column.setSpacing(20)
-        
-        # Right column
-        self.right_column = QVBoxLayout()
-        self.right_column.setSpacing(20)
+        # Card grid
+        self.card_grid = QGridLayout()
+        self.card_grid.setHorizontalSpacing(20)
+        self.card_grid.setVerticalSpacing(20)
         
         # Create dashboard cards
         self.cards = {}
         
-        # SEO Score card
-        self.seo_card = DashboardCard(
-            "SEO Score", 
-            "Analyze your website's SEO performance", 
-            "chart-line", 
+        # SEO Score Card
+        self.cards["seo_score"] = DashboardCard(
+            "SEO Score",
+            "Analyze your website's SEO performance",
+            "chart-line",
             "seo_score"
         )
-        self.seo_card.clicked.connect(self.open_card_page)
-        self.cards["seo_score"] = self.seo_card
         
-        # Backlink Map card
-        self.backlink_card = DashboardCard(
-            "Backlink Map", 
-            "Visualize your backlink profile", 
-            "link", 
+        # Backlink Map Card
+        self.cards["backlink_map"] = DashboardCard(
+            "Backlink Map",
+            "Visualize your backlink profile",
+            "link",
             "backlink_map"
         )
-        self.backlink_card.clicked.connect(self.open_card_page)
-        self.cards["backlink_map"] = self.backlink_card
         
-        # Competitor Analysis card
-        self.competitor_card = DashboardCard(
-            "Competitor Analysis", 
-            "Monitor and compare competitor websites", 
-            "target", 
+        # Competitor Analysis Card
+        self.cards["competitor_analysis"] = DashboardCard(
+            "Competitor Analysis",
+            "Monitor and compare competitor websites",
+            "target",
             "competitor_analysis"
         )
-        self.competitor_card.clicked.connect(self.open_card_page)
-        self.cards["competitor_analysis"] = self.competitor_card
         
-        # Keyword Research card
-        self.keyword_card = DashboardCard(
-            "Keyword Research", 
-            "Find high-performing keywords for your niche", 
-            "search", 
+        # Keyword Research Card
+        self.cards["keyword_research"] = DashboardCard(
+            "Keyword Research",
+            "Find high-performing keywords for your niche",
+            "search",
             "keyword_research"
         )
-        self.keyword_card.clicked.connect(self.open_card_page)
-        self.cards["keyword_research"] = self.keyword_card
         
-        # Performance Tracking card
-        self.performance_card = DashboardCard(
-            "Performance Tracking", 
-            "Track your website's performance over time", 
-            "activity", 
+        # Performance Tracking Card
+        self.cards["performance_tracking"] = DashboardCard(
+            "Performance Tracking",
+            "Track your website's performance over time",
+            "activity",
             "performance_tracking"
         )
-        self.performance_card.clicked.connect(self.open_card_page)
-        self.cards["performance_tracking"] = self.performance_card
         
-        # Content Analysis card
-        self.content_card = DashboardCard(
-            "Content Analysis", 
-            "Analyze your content for SEO opportunities", 
-            "file-text", 
+        # Content Analysis Card
+        self.cards["content_analysis"] = DashboardCard(
+            "Content Analysis",
+            "Analyze your content for SEO opportunities",
+            "file-text",
             "content_analysis"
         )
-        self.content_card.clicked.connect(self.open_card_page)
-        self.cards["content_analysis"] = self.content_card
         
-        # Site Audit card
-        self.audit_card = DashboardCard(
-            "Site Audit", 
-            "Identify and fix technical issues", 
-            "tool", 
+        # Site Audit Card
+        self.cards["site_audit"] = DashboardCard(
+            "Site Audit",
+            "Identify and fix technical issues",
+            "tool",
             "site_audit"
         )
-        self.audit_card.clicked.connect(self.open_card_page)
-        self.cards["site_audit"] = self.audit_card
         
-        # Reports card
-        self.reports_card = DashboardCard(
-            "Reports", 
-            "Generate custom SEO reports", 
-            "file", 
+        # Reports Card
+        self.cards["reports"] = DashboardCard(
+            "Reports",
+            "Generate custom SEO reports",
+            "file",
             "reports"
         )
-        self.reports_card.clicked.connect(self.open_card_page)
-        self.cards["reports"] = self.reports_card
         
-        # Add cards to columns
-        self.left_column.addWidget(self.seo_card)
-        self.left_column.addWidget(self.backlink_card)
-        self.left_column.addWidget(self.competitor_card)
-        self.left_column.addWidget(self.keyword_card)
+        # Connect card signals
+        for card in self.cards.values():
+            card.clicked.connect(self.open_card_page)
         
-        self.right_column.addWidget(self.performance_card)
-        self.right_column.addWidget(self.content_card)
-        self.right_column.addWidget(self.audit_card)
-        self.right_column.addWidget(self.reports_card)
+        # Add cards to grid (4x2)
+        self.card_grid.addWidget(self.cards["seo_score"], 0, 0)
+        self.card_grid.addWidget(self.cards["backlink_map"], 0, 1)
+        self.card_grid.addWidget(self.cards["competitor_analysis"], 0, 2)
+        self.card_grid.addWidget(self.cards["keyword_research"], 0, 3)
+        self.card_grid.addWidget(self.cards["performance_tracking"], 1, 0)
+        self.card_grid.addWidget(self.cards["content_analysis"], 1, 1)
+        self.card_grid.addWidget(self.cards["site_audit"], 1, 2)
+        self.card_grid.addWidget(self.cards["reports"], 1, 3)
         
-        # Add columns to grid
-        self.cards_grid.addLayout(self.left_column)
-        self.cards_grid.addLayout(self.right_column)
-        
-        # Add all components to dashboard layout
+        # Add to dashboard layout
         self.dashboard_layout.addWidget(self.dashboard_title)
-        self.dashboard_layout.addWidget(self.cards_container)
+        self.dashboard_layout.addLayout(self.card_grid)
+        self.dashboard_layout.addStretch()
     
     def create_ai_page(self):
         """Create the AI chat page."""
-        self.ai_page = AIChat()
+        return AIChat()
     
     def create_settings_page(self):
         """Create the settings page."""
-        self.settings_page = SettingsPage()
+        return SettingsPage()
     
     def create_help_page(self):
         """Create the help page."""
-        self.help_page = HelpPage()
+        return HelpPage()
     
     def switch_page(self, page_name):
         """Switch to a specified page by adding/showing its tab."""
-        # Deactivate all sidebar buttons
-        for button in self.sidebar_buttons.values():
-            button.setActive(False)
+        # Get page title
+        title = self.get_page_title(page_name)
         
-        # Activate the selected button
-        self.sidebar_buttons[page_name].setActive(True)
-        
-        # Check if the tab already exists
-        tab_index = -1
+        # Check if tab already exists
         for i in range(self.tab_widget.count()):
-            if self.tab_widget.tabText(i) == self.get_page_title(page_name):
-                tab_index = i
-                break
+            if self.tab_widget.tabText(i) == title:
+                self.tab_widget.setCurrentIndex(i)
+                return
         
-        if tab_index == -1:
-            # Tab doesn't exist, add a new one
-            if page_name == "home":
-                tab_index = self.tab_widget.add_tab(self.dashboard_page, self.get_page_title(page_name), "home")
-            elif page_name == "ai":
-                tab_index = self.tab_widget.add_tab(self.ai_page, self.get_page_title(page_name), "robot")
-            elif page_name == "settings":
-                tab_index = self.tab_widget.add_tab(self.settings_page, self.get_page_title(page_name), "settings")
-            elif page_name == "help":
-                tab_index = self.tab_widget.add_tab(self.help_page, self.get_page_title(page_name), "help")
+        # Add new tab based on page name
+        if page_name == "home":
+            if self.tab_widget.count() == 0:
+                self.tab_widget.add_tab(self.dashboard_page, title, "home")
+            else:
+                self.tab_widget.setCurrentIndex(0)  # Home is always the first tab
+                
+        elif page_name == "ai":
+            self.tab_widget.add_tab(self.ai_page, title, "robot")
+            
+        elif page_name == "settings":
+            self.tab_widget.add_tab(self.settings_page, title, "settings")
+            
+        elif page_name == "help":
+            self.tab_widget.add_tab(self.help_page, title, "help")
         
-        # Switch to the tab
-        self.tab_widget.setCurrentIndex(tab_index)
+        # Switch to the newly added tab
+        self.tab_widget.setCurrentIndex(self.tab_widget.count() - 1)
     
     def open_card_page(self, card_type):
         """Open a new tab for the clicked card."""
-        # Create a placeholder content for the card page
+        # Create a placeholder widget for the card page
         card_page = QWidget()
-        layout = QVBoxLayout(card_page)
+        card_layout = QVBoxLayout(card_page)
         
         # Add a title
-        title = QLabel(self.get_card_title(card_type))
-        title.setObjectName("page_title")
+        title = self.get_card_title(card_type)
+        title_label = QLabel(title)
+        title_label.setObjectName("card_page_title")
         
         # Add placeholder content
-        placeholder = QLabel(f"This is the {self.get_card_title(card_type)} page content.")
-        placeholder.setWordWrap(True)
-        placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        content_label = QLabel("This feature will be implemented in a future update.")
+        content_label.setObjectName("card_page_content")
+        content_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        layout.addWidget(title)
-        layout.addWidget(placeholder)
-        layout.addStretch()
+        # Add to layout
+        card_layout.addWidget(title_label)
+        card_layout.addWidget(content_label)
+        card_layout.addStretch()
         
-        # Get the icon for this card type
+        # Add tab with appropriate icon
         icon_map = {
             "seo_score": "chart-line",
             "backlink_map": "link",
@@ -1315,87 +1249,59 @@ class Dashboard(QMainWindow):
             "site_audit": "tool",
             "reports": "file"
         }
-        icon_name = icon_map.get(card_type, "file")
         
-        # Add a new tab with this content
-        tab_index = self.tab_widget.add_tab(card_page, self.get_card_title(card_type), icon_name)
-        self.tab_widget.setCurrentIndex(tab_index)
+        # Add new tab
+        self.tab_widget.add_tab(card_page, title, icon_map.get(card_type, "file"))
+        
+        # Switch to the newly added tab
+        self.tab_widget.setCurrentIndex(self.tab_widget.count() - 1)
     
     def handle_tab_change(self, index):
         """Handle tab change to update sidebar button state."""
-        if index < 0:
-            return
+        # Reset all sidebar buttons
+        self.home_button.setActive(False)
+        self.ai_button.setActive(False)
+        self.settings_button.setActive(False)
+        self.help_button.setActive(False)
         
-        # Get the tab text
+        # Activate the appropriate button based on tab title
         tab_text = self.tab_widget.tabText(index)
         
-        # Map tab text to sidebar button
-        for button_name, button in self.sidebar_buttons.items():
-            if self.get_page_title(button_name) == tab_text:
-                # Deactivate all buttons first
-                for btn in self.sidebar_buttons.values():
-                    btn.setActive(False)
-                
-                # Activate the matching button
-                button.setActive(True)
-                break
+        if tab_text == self.get_page_title("home"):
+            self.home_button.setActive(True)
+        elif tab_text == self.get_page_title("ai"):
+            self.ai_button.setActive(True)
+        elif tab_text == self.get_page_title("settings"):
+            self.settings_button.setActive(True)
+        elif tab_text == self.get_page_title("help"):
+            self.help_button.setActive(True)
     
     def get_page_title(self, page_name):
         """Get the localized title for a page."""
-        lang = self.loc_manager.current_language
-        
-        # Map page names to title keys
-        title_map = {
-            "home": "dashboard.title",
-            "ai": "ai.title",
-            "settings": "settings.title",
-            "help": "help.title"
-        }
-        
-        # Default titles if translation not found
-        default_map = {
-            "home": "Dashboard",
-            "ai": "AI Assistant",
-            "settings": "Settings",
-            "help": "Help"
-        }
-        
-        title_key = title_map.get(page_name, "")
-        default_title = default_map.get(page_name, page_name.capitalize())
-        
-        return lang.get(title_key, default_title)
+        if page_name == "home":
+            return self.loc_manager.get_text("sidebar.home", "Dashboard")
+        elif page_name == "ai":
+            return self.loc_manager.get_text("sidebar.ai", "AI Assistant")
+        elif page_name == "settings":
+            return self.loc_manager.get_text("sidebar.settings", "Settings")
+        elif page_name == "help":
+            return self.loc_manager.get_text("sidebar.help", "Help")
+        return page_name.capitalize()
     
     def get_card_title(self, card_type):
         """Get the localized title for a card."""
-        lang = self.loc_manager.current_language
-        
-        # Map card types to title keys
-        title_key = f"dashboard.cards.{card_type}.title"
-        
-        # Default titles if translation not found
-        default_map = {
-            "seo_score": "SEO Score",
-            "backlink_map": "Backlink Map",
-            "competitor_analysis": "Competitor Analysis",
-            "keyword_research": "Keyword Research",
-            "performance_tracking": "Performance Tracking",
-            "content_analysis": "Content Analysis",
-            "site_audit": "Site Audit",
-            "reports": "Reports"
-        }
-        
-        default_title = default_map.get(card_type, card_type.replace("_", " ").title())
-        
-        return lang.get(title_key, default_title)
+        return self.loc_manager.get_text(f"dashboard.cards.{card_type}.title", card_type.replace("_", " ").capitalize())
     
     def update_styling(self, *args):
         """Update main window styling based on current theme."""
         theme = self.theme_manager.current_theme
         
-        # Main window styles
+        # Main window style
         style = f"""
-            QMainWindow {{
+            QMainWindow, QWidget {{
                 background-color: {theme['main']['bg_color']};
+                color: {theme['main']['text_color']};
+                font-family: 'Segoe UI', Arial, sans-serif;
             }}
             
             #sidebar {{
@@ -1414,64 +1320,78 @@ class Dashboard(QMainWindow):
                 font-size: 12px;
             }}
             
-            #content_area {{
-                background-color: {theme['main']['bg_color']};
-            }}
-            
-            #page_title {{
+            #dashboard_title {{
                 color: {theme['main']['title_color']};
                 font-size: 24px;
                 font-weight: bold;
                 margin-bottom: 20px;
             }}
+            
+            #card_page_title {{
+                color: {theme['main']['title_color']};
+                font-size: 24px;
+                font-weight: bold;
+                margin: 30px 30px 20px 30px;
+            }}
+            
+            #card_page_content {{
+                color: {theme['main']['text_color']};
+                font-size: 16px;
+                margin: 20px;
+            }}
         """
         self.setStyleSheet(style)
+        
+        # Also update window title
+        self.update_translation()
     
     def update_translation(self, *args):
         """Update UI text based on current language."""
-        lang = self.loc_manager.current_language
-        
         # Update window title
-        self.setWindowTitle(f"{APP_NAME} {lang.get('window.title', 'Dashboard')}")
+        self.setWindowTitle(f"{APP_NAME} - {self.loc_manager.get_text('window.title', 'Dashboard')}")
         
-        # Update sidebar button text
-        self.home_button.text = lang.get("sidebar.home", "Dashboard")
-        self.home_button.setText(self.home_button.text)
-        
-        self.ai_button.text = lang.get("sidebar.ai", "AI Assistant")
-        self.ai_button.setText(self.ai_button.text)
-        
-        self.settings_button.text = lang.get("sidebar.settings", "Settings")
-        self.settings_button.setText(self.settings_button.text)
-        
-        self.help_button.text = lang.get("sidebar.help", "Help")
-        self.help_button.setText(self.help_button.text)
+        # Update sidebar buttons
+        self.home_button.setText(self.loc_manager.get_text("sidebar.home", "Dashboard"))
+        self.ai_button.setText(self.loc_manager.get_text("sidebar.ai", "AI Assistant"))
+        self.settings_button.setText(self.loc_manager.get_text("sidebar.settings", "Settings"))
+        self.help_button.setText(self.loc_manager.get_text("sidebar.help", "Help"))
         
         # Update dashboard title
-        self.dashboard_title.setText(lang.get("dashboard.title", "Dashboard"))
+        self.dashboard_title.setText(self.loc_manager.get_text("dashboard.title", "Dashboard"))
         
-        # Update tab titles - only if the tabs exist
+        # Update tab titles (keep current tab active)
+        current_index = self.tab_widget.currentIndex()
+        
         for i in range(self.tab_widget.count()):
             tab_text = self.tab_widget.tabText(i)
-            for page_name in ["home", "ai", "settings", "help"]:
-                if tab_text == self.get_page_title(page_name):
-                    self.tab_widget.setTabText(i, self.get_page_title(page_name))
-                    break
+            
+            # Determine the page type based on the current text
+            if tab_text == self.get_page_title("home") or i == 0:  # First tab is always home
+                self.tab_widget.setTabText(i, self.get_page_title("home"))
+            elif tab_text == self.get_page_title("ai") or "AI" in tab_text or "Asistan" in tab_text:
+                self.tab_widget.setTabText(i, self.get_page_title("ai"))
+            elif tab_text == self.get_page_title("settings") or "Setting" in tab_text or "Ayar" in tab_text:
+                self.tab_widget.setTabText(i, self.get_page_title("settings"))
+            elif tab_text == self.get_page_title("help") or "Help" in tab_text or "Yardım" in tab_text:
+                self.tab_widget.setTabText(i, self.get_page_title("help"))
+        
+        # Restore the current tab
+        if current_index >= 0:
+            self.tab_widget.setCurrentIndex(current_index)
 
 
 def main():
     """Main application entry point."""
-    app = QApplication(sys.argv)
-    
-    # Setup font
-    app.setStyle("Fusion")
-    
-    # Create main window
-    window = Dashboard()
-    window.show()
-    
-    # Start event loop
-    sys.exit(app.exec())
+    try:
+        app = QApplication(sys.argv)
+        window = Dashboard()
+        window.show()
+        sys.exit(app.exec())
+    except Exception as e:
+        print(f"Error running application: {e}")
+        traceback.print_exc()
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

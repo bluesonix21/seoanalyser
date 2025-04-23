@@ -10,7 +10,7 @@ Generates and provides icons for the application with theme support.
 
 import os
 from typing import Dict, Any
-from PyQt6.QtGui import QIcon, QPixmap, QColor
+from PyQt6.QtGui import QIcon, QPixmap, QColor, QPainter
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtSvg import QSvgRenderer
 
