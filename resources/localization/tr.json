@@ -1,0 +1,68 @@
+{
+  "window": {
+    "title": "Gösterge Paneli"
+  },
+  "sidebar": {
+    "home": "Gösterge Paneli",
+    "ai": "Yapay Zeka Asistanı",
+    "settings": "Ayarlar",
+    "help": "Yardım"
+  },
+  "dashboard": {
+    "title": "Gösterge Paneli",
+    "cards": {
+      "seo_score": {
+        "title": "SEO Puanı",
+        "description": "Web sitenizin SEO performansını analiz edin"
+      },
+      "backlink_map": {
+        "title": "Backlink Haritası",
+        "description": "Backlink profilinizi görselleştirin"
+      },
+      "competitor_analysis": {
+        "title": "Rakip Analizi",
+        "description": "Rakip web sitelerini izleyin ve karşılaştırın"
+      },
+      "keyword_research": {
+        "title": "Anahtar Kelime Araştırması",
+        "description": "Niş alanınız için yüksek performanslı anahtar kelimeler bulun"
+      },
+      "performance_tracking": {
+        "title": "Performans Takibi",
+        "description": "Web sitenizin performansını zaman içinde takip edin"
+      },
+      "content_analysis": {
+        "title": "İçerik Analizi",
+        "description": "SEO fırsatları için içeriğinizi analiz edin"
+      },
+      "site_audit": {
+        "title": "Site Denetimi",
+        "description": "Teknik sorunları belirleyin ve düzeltin"
+      },
+      "reports": {
+        "title": "Raporlar",
+        "description": "Özel SEO raporları oluşturun"
+      }
+    }
+  },
+  "ai": {
+    "title": "Yapay Zeka Asistanı",
+    "input_placeholder": "Mesajınızı buraya yazın..."
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "theme": "Tema",
+    "language": "Dil"
+  },
+  "help": {
+    "title": "Yardım & Belgelendirme",
+    "about": {
+      "title": "NovaSEO Hakkında",
+      "content": "NovaSEO, web sitenizi optimize etmenize ve arama motoru sıralamalarınızı iyileştirmenize yardımcı olmak için tasarlanmış güçlü bir SEO ve backlink analiz aracıdır. Gelişmiş özellikleri ve kullanıcı dostu arayüzü ile NovaSEO, sitenizin performansını analiz etmeyi ve iyileştirme fırsatlarını belirlemeyi kolaylaştırır."
+    },
+    "features": {
+      "title": "Temel Özellikler",
+      "content": "• Kapsamlı SEO Analizi\n• Detaylı Backlink Haritalama\n• Rakip Analizi\n• Anahtar Kelime Araştırması\n• Yapay Zeka Destekli Öneriler\n• Performans Takibi\n• Özel Raporlar\n• Çoklu Dil Desteği"
+    }
+  }
+}

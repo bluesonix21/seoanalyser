@@ -1,0 +1,68 @@
+{
+  "window": {
+    "title": "Dashboard"
+  },
+  "sidebar": {
+    "home": "Dashboard",
+    "ai": "AI Assistant",
+    "settings": "Settings",
+    "help": "Help"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "cards": {
+      "seo_score": {
+        "title": "SEO Score",
+        "description": "Analyze your website's SEO performance"
+      },
+      "backlink_map": {
+        "title": "Backlink Map",
+        "description": "Visualize your backlink profile"
+      },
+      "competitor_analysis": {
+        "title": "Competitor Analysis",
+        "description": "Monitor and compare competitor websites"
+      },
+      "keyword_research": {
+        "title": "Keyword Research",
+        "description": "Find high-performing keywords for your niche"
+      },
+      "performance_tracking": {
+        "title": "Performance Tracking",
+        "description": "Track your website's performance over time"
+      },
+      "content_analysis": {
+        "title": "Content Analysis",
+        "description": "Analyze your content for SEO opportunities"
+      },
+      "site_audit": {
+        "title": "Site Audit",
+        "description": "Identify and fix technical issues"
+      },
+      "reports": {
+        "title": "Reports",
+        "description": "Generate custom SEO reports"
+      }
+    }
+  },
+  "ai": {
+    "title": "AI Assistant",
+    "input_placeholder": "Type your message here..."
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "language": "Language"
+  },
+  "help": {
+    "title": "Help & Documentation",
+    "about": {
+      "title": "About NovaSEO",
+      "content": "NovaSEO is a powerful SEO and backlink analysis tool designed to help you optimize your website and improve your search engine rankings. With advanced features and a user-friendly interface, NovaSEO makes it easy to analyze your site's performance and identify opportunities for improvement."
+    },
+    "features": {
+      "title": "Key Features",
+      "content": "• Comprehensive SEO Analysis\n• Detailed Backlink Mapping\n• Competitor Analysis\n• Keyword Research\n• AI-Powered Recommendations\n• Performance Tracking\n• Custom Reports\n• Multi-Language Support"
+    }
+  }
+}

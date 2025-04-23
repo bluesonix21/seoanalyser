@@ -1,0 +1,68 @@
+{
+  "window": {
+    "title": "仪表盘"
+  },
+  "sidebar": {
+    "home": "仪表盘",
+    "ai": "人工智能助手",
+    "settings": "设置",
+    "help": "帮助"
+  },
+  "dashboard": {
+    "title": "仪表盘",
+    "cards": {
+      "seo_score": {
+        "title": "SEO 评分",
+        "description": "分析您网站的 SEO 性能"
+      },
+      "backlink_map": {
+        "title": "反向链接地图",
+        "description": "可视化您的反向链接配置文件"
+      },
+      "competitor_analysis": {
+        "title": "竞争对手分析",
+        "description": "监控和比较竞争对手网站"
+      },
+      "keyword_research": {
+        "title": "关键词研究",
+        "description": "为您的领域找到高性能关键词"
+      },
+      "performance_tracking": {
+        "title": "性能跟踪",
+        "description": "随时间跟踪您网站的性能"
+      },
+      "content_analysis": {
+        "title": "内容分析",
+        "description": "分析您的内容以获取 SEO 机会"
+      },
+      "site_audit": {
+        "title": "网站审核",
+        "description": "识别并修复技术问题"
+      },
+      "reports": {
+        "title": "报告",
+        "description": "生成自定义 SEO 报告"
+      }
+    }
+  },
+  "ai": {
+    "title": "人工智能助手",
+    "input_placeholder": "在此处输入您的消息..."
+  },
+  "settings": {
+    "title": "设置",
+    "theme": "主题",
+    "language": "语言"
+  },
+  "help": {
+    "title": "帮助与文档",
+    "about": {
+      "title": "关于 NovaSEO",
+      "content": "NovaSEO 是一个强大的 SEO 和反向链接分析工具，旨在帮助您优化网站并提高搜索引擎排名。凭借先进的功能和用户友好的界面，NovaSEO 使分析您网站的性能并识别改进机会变得简单。"
+    },
+    "features": {
+      "title": "主要功能",
+      "content": "• 全面的 SEO 分析\n• 详细的反向链接映射\n• 竞争对手分析\n• 关键词研究\n• AI 支持的建议\n• 性能跟踪\n• 自定义报告\n• 多语言支持"
+    }
+  }
+}

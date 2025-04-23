@@ -1,0 +1,352 @@
+{
+  "cyber": {
+    "name": "Cyber",
+    "accent_color": "#9d4edd",
+    "hover_accent_color": "#c77dff",
+    "secondary_color": "#5390d9",
+    "main": {
+      "bg_color": "#121212",
+      "text_color": "#e0e0e0",
+      "title_color": "#ffffff"
+    },
+    "sidebar": {
+      "bg_color": "#1a1a1a",
+      "title_color": "#9d4edd",
+      "text_color": "#e0e0e0",
+      "hover_color": "#333333",
+      "active_color": "#9d4edd33",
+      "active_text_color": "#ffffff",
+      "border_color": "#333333",
+      "icon_color": "#9d4edd",
+      "glow_color": "#9d4edd80",
+      "version_color": "#666666"
+    },
+    "tabs": {
+      "bg_color": "#1a1a1a",
+      "text_color": "#e0e0e0",
+      "hover_color": "#333333",
+      "active_bg_color": "#242424",
+      "active_text_color": "#ffffff",
+      "close_hover_color": "#ff000033"
+    },
+    "cards": {
+      "bg_color": "#242424",
+      "title_color": "#ffffff",
+      "text_color": "#e0e0e0",
+      "border_color": "#333333",
+      "icon_color": "#9d4edd",
+      "chart_bg_color": "#1a1a1a",
+      "shadow_color": "#00000080"
+    },
+    "chat": {
+      "bg_color": "#1a1a1a",
+      "title_color": "#ffffff",
+      "input_bg_color": "#242424",
+      "input_field_color": "#333333",
+      "input_text_color": "#e0e0e0",
+      "input_border_color": "#444444",
+      "button_icon_color": "#ffffff",
+      "user_bubble_color": "#9d4edd33",
+      "user_text_color": "#ffffff",
+      "user_border_color": "#9d4edd",
+      "ai_bubble_color": "#333333",
+      "ai_text_color": "#e0e0e0",
+      "ai_border_color": "#444444"
+    },
+    "settings": {
+      "title_color": "#ffffff",
+      "section_bg_color": "#242424",
+      "section_title_color": "#ffffff",
+      "text_color": "#e0e0e0",
+      "border_color": "#333333",
+      "control_border_color": "#666666"
+    },
+    "help": {
+      "title_color": "#ffffff",
+      "section_bg_color": "#242424",
+      "section_title_color": "#ffffff",
+      "text_color": "#e0e0e0",
+      "border_color": "#333333"
+    }
+  },
+  "matrix": {
+    "name": "Matrix",
+    "accent_color": "#00ff41",
+    "hover_accent_color": "#72ff72",
+    "secondary_color": "#00bb2d",
+    "main": {
+      "bg_color": "#0f0f0f",
+      "text_color": "#a0a0a0",
+      "title_color": "#00ff41"
+    },
+    "sidebar": {
+      "bg_color": "#181818",
+      "title_color": "#00ff41",
+      "text_color": "#a0a0a0",
+      "hover_color": "#252525",
+      "active_color": "#00ff4133",
+      "active_text_color": "#00ff41",
+      "border_color": "#2a2a2a",
+      "icon_color": "#00ff41",
+      "glow_color": "#00ff4180",
+      "version_color": "#555555"
+    },
+    "tabs": {
+      "bg_color": "#151515",
+      "text_color": "#a0a0a0",
+      "hover_color": "#252525",
+      "active_bg_color": "#202020",
+      "active_text_color": "#00ff41",
+      "close_hover_color": "#ff000033"
+    },
+    "cards": {
+      "bg_color": "#1a1a1a",
+      "title_color": "#00ff41",
+      "text_color": "#a0a0a0",
+      "border_color": "#272727",
+      "icon_color": "#00ff41",
+      "chart_bg_color": "#151515",
+      "shadow_color": "#00000080"
+    },
+    "chat": {
+      "bg_color": "#151515",
+      "title_color": "#00ff41",
+      "input_bg_color": "#1a1a1a",
+      "input_field_color": "#252525",
+      "input_text_color": "#a0a0a0",
+      "input_border_color": "#303030",
+      "button_icon_color": "#000000",
+      "user_bubble_color": "#00ff4122",
+      "user_text_color": "#00ff41",
+      "user_border_color": "#00ff41",
+      "ai_bubble_color": "#252525",
+      "ai_text_color": "#a0a0a0",
+      "ai_border_color": "#303030"
+    },
+    "settings": {
+      "title_color": "#00ff41",
+      "section_bg_color": "#1a1a1a",
+      "section_title_color": "#00ff41",
+      "text_color": "#a0a0a0",
+      "border_color": "#272727",
+      "control_border_color": "#404040"
+    },
+    "help": {
+      "title_color": "#00ff41",
+      "section_bg_color": "#1a1a1a",
+      "section_title_color": "#00ff41",
+      "text_color": "#a0a0a0",
+      "border_color": "#272727"
+    }
+  },
+  "ocean": {
+    "name": "Ocean",
+    "accent_color": "#0096c7",
+    "hover_accent_color": "#48cae4",
+    "secondary_color": "#023e8a",
+    "main": {
+      "bg_color": "#0a1929",
+      "text_color": "#caf0f8",
+      "title_color": "#ffffff"
+    },
+    "sidebar": {
+      "bg_color": "#0f2944",
+      "title_color": "#48cae4",
+      "text_color": "#caf0f8",
+      "hover_color": "#164063",
+      "active_color": "#0096c733",
+      "active_text_color": "#ffffff",
+      "border_color": "#164063",
+      "icon_color": "#48cae4",
+      "glow_color": "#48cae480",
+      "version_color": "#90e0ef"
+    },
+    "tabs": {
+      "bg_color": "#0f2944",
+      "text_color": "#caf0f8",
+      "hover_color": "#164063",
+      "active_bg_color": "#0a1929",
+      "active_text_color": "#ffffff",
+      "close_hover_color": "#ff000033"
+    },
+    "cards": {
+      "bg_color": "#0f2944",
+      "title_color": "#ade8f4",
+      "text_color": "#caf0f8",
+      "border_color": "#164063",
+      "icon_color": "#48cae4",
+      "chart_bg_color": "#0a1929",
+      "shadow_color": "#00000080"
+    },
+    "chat": {
+      "bg_color": "#0a1929",
+      "title_color": "#ffffff",
+      "input_bg_color": "#0f2944",
+      "input_field_color": "#164063",
+      "input_text_color": "#caf0f8",
+      "input_border_color": "#1e5783",
+      "button_icon_color": "#ffffff",
+      "user_bubble_color": "#0096c733",
+      "user_text_color": "#ffffff",
+      "user_border_color": "#0096c7",
+      "ai_bubble_color": "#164063",
+      "ai_text_color": "#caf0f8",
+      "ai_border_color": "#1e5783"
+    },
+    "settings": {
+      "title_color": "#ffffff",
+      "section_bg_color": "#0f2944",
+      "section_title_color": "#ade8f4",
+      "text_color": "#caf0f8",
+      "border_color": "#164063",
+      "control_border_color": "#1e5783"
+    },
+    "help": {
+      "title_color": "#ffffff",
+      "section_bg_color": "#0f2944",
+      "section_title_color": "#ade8f4",
+      "text_color": "#caf0f8",
+      "border_color": "#164063"
+    }
+  },
+  "blood": {
+    "name": "Blood",
+    "accent_color": "#d00000",
+    "hover_accent_color": "#e5383b",
+    "secondary_color": "#9d0208",
+    "main": {
+      "bg_color": "#161616",
+      "text_color": "#e5e5e5",
+      "title_color": "#ffffff"
+    },
+    "sidebar": {
+      "bg_color": "#1c1c1c",
+      "title_color": "#d00000",
+      "text_color": "#e5e5e5",
+      "hover_color": "#3d3d3d",
+      "active_color": "#d0000033",
+      "active_text_color": "#ffffff",
+      "border_color": "#3d3d3d",
+      "icon_color": "#d00000",
+      "glow_color": "#d0000080",
+      "version_color": "#a3a3a3"
+    },
+    "tabs": {
+      "bg_color": "#1c1c1c",
+      "text_color": "#e5e5e5",
+      "hover_color": "#3d3d3d",
+      "active_bg_color": "#161616",
+      "active_text_color": "#ffffff",
+      "close_hover_color": "#ff000033"
+    },
+    "cards": {
+      "bg_color": "#262626",
+      "title_color": "#ffffff",
+      "text_color": "#e5e5e5",
+      "border_color": "#3d3d3d",
+      "icon_color": "#d00000",
+      "chart_bg_color": "#1c1c1c",
+      "shadow_color": "#00000080"
+    },
+    "chat": {
+      "bg_color": "#1c1c1c",
+      "title_color": "#ffffff",
+      "input_bg_color": "#262626",
+      "input_field_color": "#3d3d3d",
+      "input_text_color": "#e5e5e5",
+      "input_border_color": "#525252",
+      "button_icon_color": "#ffffff",
+      "user_bubble_color": "#d0000033",
+      "user_text_color": "#ffffff",
+      "user_border_color": "#d00000",
+      "ai_bubble_color": "#3d3d3d",
+      "ai_text_color": "#e5e5e5",
+      "ai_border_color": "#525252"
+    },
+    "settings": {
+      "title_color": "#ffffff",
+      "section_bg_color": "#262626",
+      "section_title_color": "#ffffff",
+      "text_color": "#e5e5e5",
+      "border_color": "#3d3d3d",
+      "control_border_color": "#525252"
+    },
+    "help": {
+      "title_color": "#ffffff",
+      "section_bg_color": "#262626",
+      "section_title_color": "#ffffff",
+      "text_color": "#e5e5e5",
+      "border_color": "#3d3d3d"
+    }
+  },
+  "royal": {
+    "name": "Royal",
+    "accent_color": "#d4af37",
+    "hover_accent_color": "#f1c232",
+    "secondary_color": "#634806",
+    "main": {
+      "bg_color": "#15151d",
+      "text_color": "#d6d6e5",
+      "title_color": "#ffffff"
+    },
+    "sidebar": {
+      "bg_color": "#1c1c27",
+      "title_color": "#d4af37",
+      "text_color": "#d6d6e5",
+      "hover_color": "#2e2e41",
+      "active_color": "#d4af3733",
+      "active_text_color": "#ffffff",
+      "border_color": "#2e2e41",
+      "icon_color": "#d4af37",
+      "glow_color": "#d4af3780",
+      "version_color": "#9a9aa8"
+    },
+    "tabs": {
+      "bg_color": "#1c1c27",
+      "text_color": "#d6d6e5",
+      "hover_color": "#2e2e41",
+      "active_bg_color": "#15151d",
+      "active_text_color": "#ffffff",
+      "close_hover_color": "#ff000033"
+    },
+    "cards": {
+      "bg_color": "#22222f",
+      "title_color": "#ffffff",
+      "text_color": "#d6d6e5",
+      "border_color": "#2e2e41",
+      "icon_color": "#d4af37",
+      "chart_bg_color": "#1c1c27",
+      "shadow_color": "#00000080"
+    },
+    "chat": {
+      "bg_color": "#1c1c27",
+      "title_color": "#ffffff",
+      "input_bg_color": "#22222f",
+      "input_field_color": "#2e2e41",
+      "input_text_color": "#d6d6e5",
+      "input_border_color": "#3b3b52",
+      "button_icon_color": "#15151d",
+      "user_bubble_color": "#d4af3733",
+      "user_text_color": "#ffffff",
+      "user_border_color": "#d4af37",
+      "ai_bubble_color": "#2e2e41",
+      "ai_text_color": "#d6d6e5",
+      "ai_border_color": "#3b3b52"
+    },
+    "settings": {
+      "title_color": "#ffffff",
+      "section_bg_color": "#22222f",
+      "section_title_color": "#ffffff",
+      "text_color": "#d6d6e5",
+      "border_color": "#2e2e41",
+      "control_border_color": "#3b3b52"
+    },
+    "help": {
+      "title_color": "#ffffff",
+      "section_bg_color": "#22222f",
+      "section_title_color": "#ffffff",
+      "text_color": "#d6d6e5",
+      "border_color": "#2e2e41"
+    }
+  }
+}
