@@ -13,8 +13,8 @@ import {
   Search, 
   Activity, 
   FileText, 
-  Tool, 
-  FileBar,
+  Wrench, 
+  FileType,
   TrendingUp,
   AlertTriangle,
   CheckCircle
@@ -125,7 +125,7 @@ const Dashboard: React.FC = () => {
     {
       title: 'Site Denetimi',
       description: 'Teknik sorunları tanımlayın ve düzeltin',
-      icon: <Tool size={24} />,
+      icon: <Wrench size={24} />,
       color: colors.error,
       path: '/site-audit',
       value: seoData.issues,
@@ -136,7 +136,7 @@ const Dashboard: React.FC = () => {
     {
       title: 'Raporlar',
       description: 'Özel SEO raporları oluşturun',
-      icon: <FileBar size={24} />,
+      icon: <FileType size={24} />,
       color: '#8B5CF6',
       path: '/reports',
       value: '7',

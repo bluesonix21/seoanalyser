@@ -11,8 +11,8 @@ import {
   Search, 
   Activity, 
   FileText, 
-  Tool, 
-  FileBar, 
+  Wrench, 
+  FileType, 
   Settings,
   HelpCircle, 
   MessageSquare,
@@ -35,8 +35,8 @@ const Sidebar: React.FC = () => {
     { name: 'Anahtar Kelime', path: '/keyword-research', icon: <Search /> },
     { name: 'Performans Takibi', path: '/performance-tracking', icon: <Activity /> },
     { name: 'İçerik Analizi', path: '/content-analysis', icon: <FileText /> },
-    { name: 'Site Denetimi', path: '/site-audit', icon: <Tool /> },
-    { name: 'Raporlar', path: '/reports', icon: <FileBar /> },
+    { name: 'Site Denetimi', path: '/site-audit', icon: <Wrench /> },
+    { name: 'Raporlar', path: '/reports', icon: <FileType /> },
     { name: 'AI Asistanı', path: '/ai-assistant', icon: <MessageSquare /> },
   ];
   

@@ -149,8 +149,7 @@ const HelpPage: React.FC = () => {
             playSound('click');
           }}
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          animate={{ opacity: 1, y: 0, transition: { duration: 0.3 } }}
         >
           <div className="flex items-start space-x-4">
             <div 
@@ -192,8 +191,7 @@ const HelpPage: React.FC = () => {
             playSound('click');
           }}
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
+          animate={{ opacity: 1, y: 0, transition: { duration: 0.3, delay: 0.1 } }}
         >
           <div className="flex items-start space-x-4">
             <div 
@@ -235,8 +233,7 @@ const HelpPage: React.FC = () => {
             playSound('click');
           }}
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
+          animate={{ opacity: 1, y: 0, transition: { duration: 0.3, delay: 0.2 } }}
         >
           <div className="flex items-start space-x-4">
             <div 

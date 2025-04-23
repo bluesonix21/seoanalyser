@@ -18,6 +18,7 @@ import {
   TrendingUp,
   ChevronRight,
   ArrowUpRight,
+  Crosshair,
   ArrowDownRight,
   Minus,
   MoreHorizontal,

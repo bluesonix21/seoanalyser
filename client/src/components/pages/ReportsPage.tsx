@@ -5,7 +5,7 @@ import { useAudio } from '../../lib/stores/useAudio';
 
 // Icons
 import { 
-  FileBar, 
+  FileType, 
   Download, 
   Calendar, 
   Share2, 
@@ -158,7 +158,7 @@ const ReportsPage: React.FC = () => {
       case 'performance':
         return <LineChart size={18} style={{ color: colors.info }} />;
       default:
-        return <FileBar size={18} style={{ color: colors.primary }} />;
+        return <FileType size={18} style={{ color: colors.primary }} />;
     }
   };
   
@@ -284,7 +284,7 @@ const ReportsPage: React.FC = () => {
             className="w-12 h-12 rounded-full flex items-center justify-center"
             style={{ backgroundColor: `${colors.success}20`, color: colors.success }}
           >
-            <FileBar size={24} />
+            <FileType size={24} />
           </div>
           <div>
             <p className="text-sm" style={{ color: colors.text.secondary }}>Hazır Raporlar</p>
@@ -536,7 +536,7 @@ const ReportsPage: React.FC = () => {
                 playSound('click');
               }}
             >
-              <FileBar size={18} />
+              <FileType size={18} />
               <span>Rapor Oluştur</span>
             </button>
           </div>
@@ -951,7 +951,7 @@ const ReportsPage: React.FC = () => {
           </div>
         ) : (
           <div className="py-12 text-center">
-            <FileBar size={48} style={{ color: colors.text.secondary, opacity: 0.3 }} className="mx-auto mb-4" />
+            <FileType size={48} style={{ color: colors.text.secondary, opacity: 0.3 }} className="mx-auto mb-4" />
             <h3 
               className="text-lg font-medium mb-2"
               style={{ color: colors.text.primary }}
