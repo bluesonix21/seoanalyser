@@ -93,7 +93,7 @@ const Sidebar: React.FC = () => {
               className="text-xl font-bold bg-clip-text text-transparent"
               style={{ backgroundImage: `linear-gradient(to right, ${colors.primary}, ${colors.accent})` }}
             >
-              NovaSEO
+              Free SeoAnalyser
             </h1>
           </div>
         )}
@@ -222,7 +222,7 @@ const Sidebar: React.FC = () => {
       {!collapsed && (
         <div className="px-6 pb-4">
           <p className="text-xs opacity-50" style={{ color: colors.text.secondary }}>
-            NovaSEO v1.0.0
+            Free SeoAnalyser v1.0.0
           </p>
         </div>
       )}

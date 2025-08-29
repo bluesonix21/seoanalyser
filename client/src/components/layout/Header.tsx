@@ -66,7 +66,7 @@ const Header: React.FC = () => {
   ]);
   
   // Get current page title
-  const pageTitle = pageTitles[location.pathname] || 'NovaSEO';
+  const pageTitle = pageTitles[location.pathname] || 'Free SeoAnalyser';
   
   // Handle theme toggle
   const toggleTheme = () => {

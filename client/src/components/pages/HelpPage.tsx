@@ -28,8 +28,8 @@ interface FAQItem {
 const faqItems: FAQItem[] = [
   {
     id: '1',
-    question: 'NovaSEO nedir?',
-    answer: 'NovaSEO, web sitelerinizin arama motoru optimizasyonunu (SEO) analiz etmek, izlemek ve iyileştirmek için kullanılan kapsamlı bir araçtır. SEO puanı hesaplama, backlink analizi, rakip analizi, anahtar kelime araştırması ve daha fazlası gibi özellikler sunar.',
+    question: 'Free SeoAnalyser nedir?',
+    answer: 'Free SeoAnalyser, web sitelerinizin arama motoru optimizasyonunu (SEO) analiz etmek, izlemek ve iyileştirmek için kullanılan kapsamlı bir araçtır. SEO puanı hesaplama, backlink analizi, rakip analizi, anahtar kelime araştırması ve daha fazlası gibi özellikler sunar.',
     category: 'genel'
   },
   {
@@ -46,7 +46,7 @@ const faqItems: FAQItem[] = [
   },
   {
     id: '4',
-    question: 'NovaSEO\'nun AI Asistanı ne yapabilir?',
+    question: 'Free SeoAnalyser\'nun AI Asistanı ne yapabilir?',
     answer: 'AI Asistanı, SEO stratejileri geliştirme, teknik sorunları tanımlama, içerik optimizasyonu önerileri sunma ve SEO ile ilgili sorularınızı yanıtlama konularında yardımcı olabilir. SEO verilerinizi analiz ederek kişiselleştirilmiş tavsiyeler sunar.',
     category: 'genel'
   },
@@ -58,14 +58,14 @@ const faqItems: FAQItem[] = [
   },
   {
     id: '6',
-    question: 'NovaSEO hangi dilleri destekliyor?',
-    answer: 'NovaSEO şu anda Türkçe, İngilizce, Arapça, Rusça ve Çince dillerini desteklemektedir. Ayarlar sayfasından tercih ettiğiniz dili seçebilirsiniz.',
+    question: 'Free SeoAnalyser hangi dilleri destekliyor?',
+    answer: 'Free SeoAnalyser şu anda Türkçe, İngilizce, Arapça, Rusça ve Çince dillerini desteklemektedir. Ayarlar sayfasından tercih ettiğiniz dili seçebilirsiniz.',
     category: 'genel'
   },
   {
     id: '7',
     question: 'Raporları dışa aktarabilir miyim?',
-    answer: 'Evet, NovaSEO\'da oluşturduğunuz tüm raporları PDF, CSV veya Excel formatlarında dışa aktarabilirsiniz. Her rapor sayfasında bir "İndir" veya "Dışa Aktar" butonu bulunmaktadır.',
+    answer: 'Evet, Free SeoAnalyser\'da oluşturduğunuz tüm raporları PDF, CSV veya Excel formatlarında dışa aktarabilirsiniz. Her rapor sayfasında bir "İndir" veya "Dışa Aktar" butonu bulunmaktadır.',
     category: 'kullanım'
   },
   {
@@ -131,7 +131,7 @@ const HelpPage: React.FC = () => {
           Yardım ve Belgeler
         </h1>
         <p style={{ color: colors.text.secondary }}>
-          NovaSEO'yu nasıl kullanacağınızı öğrenin ve sık sorulan sorulara yanıt bulun
+          Free SeoAnalyser'yu nasıl kullanacağınızı öğrenin ve sık sorulan sorulara yanıt bulun
         </p>
       </div>
       
@@ -169,7 +169,7 @@ const HelpPage: React.FC = () => {
                 className="text-sm mb-4"
                 style={{ color: colors.text.secondary }}
               >
-                NovaSEO'nun tüm özellikleri ve fonksiyonları hakkında detaylı kılavuzlara göz atın
+                Free SeoAnalyser'nun tüm özellikleri ve fonksiyonları hakkında detaylı kılavuzlara göz atın
               </p>
               <div className="flex items-center text-sm" style={{ color: colors.primary }}>
                 <span>Belgelere Git</span>
@@ -211,7 +211,7 @@ const HelpPage: React.FC = () => {
                 className="text-sm mb-4"
                 style={{ color: colors.text.secondary }}
               >
-                NovaSEO'nun nasıl kullanılacağını gösteren video eğitimlerimizi izleyin
+                Free SeoAnalyser'nun nasıl kullanılacağını gösteren video eğitimlerimizi izleyin
               </p>
               <div className="flex items-center text-sm" style={{ color: colors.secondary }}>
                 <span>Videoları İzle</span>

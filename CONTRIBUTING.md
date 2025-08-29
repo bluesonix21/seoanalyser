@@ -1,6 +1,6 @@
-# Contributing to NovaSEO
+# Contributing to Free SeoAnalyser
 
-First off, thank you for considering contributing to NovaSEO! It's people like you that make NovaSEO such a great tool for the SEO community.
+First off, thank you for considering contributing to Free SeoAnalyser! It's people like you that help keep this tool free and accessible for everyone in the SEO community.
 
 ## Code of Conduct
 
@@ -51,8 +51,8 @@ Unsure where to begin? You can start by looking through these issues:
 
 1. **Clone your fork**
 ```bash
-git clone https://github.com/YOUR_USERNAME/NovaSEO.git
-cd NovaSEO
+git clone https://github.com/YOUR_USERNAME/seoanalyser.git
+cd seoanalyser
 ```
 
 2. **Install dependencies**
@@ -137,4 +137,4 @@ Contributors will be recognized in our README.md file. We appreciate every contr
 
 ---
 
-Thank you for contributing to NovaSEO! 🚀
+Thank you for contributing to Free SeoAnalyser! 🚀

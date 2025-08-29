@@ -5,7 +5,7 @@ import "@fontsource/inter";
 import { useGame } from "./lib/stores/useGame";
 import { useAudio } from "./lib/stores/useAudio";
 
-// NovaSEO Dashboard Components
+// Free SeoAnalyser Dashboard Components
 import Dashboard from "./components/dashboard/Dashboard";
 import Sidebar from "./components/layout/Sidebar";
 import Header from "./components/layout/Header";
@@ -118,7 +118,7 @@ function App() {
               </div>
             </div>
             <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500 tracking-tight">
-              NovaSEO Dashboard
+              Free SeoAnalyser
             </h1>
             <div className="w-32 h-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full mx-auto mt-3 mb-4"></div>
             <p className="text-gray-300 max-w-lg mx-auto">
@@ -221,7 +221,7 @@ function App() {
           
           {/* Alt Bilgi */}
           <div className="mt-8 text-center text-gray-500 text-sm">
-            <p>NovaSEO Dashboard v2.5.0 | &copy; 2025 NovaSEO Technologies</p>
+            <p>Free SeoAnalyser v1.0.0 | &copy; 2025 Open Source Community</p>
           </div>
         </div>
       </div>

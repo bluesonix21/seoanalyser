@@ -147,7 +147,7 @@ export const callDeepSeekApi = async (
     
     if (needsResearch) {
       // For research queries, just respond with "Hemen araştırma yapıyorum..."
-      systemPrompt = `Şu anda yıl 2025, sen NovaSEO uygulamasının içindeki bir yapay zeka asistanısın. Sen kesinlikle onlar tarafından yapıldın ve geliştirildin, hakikat bu. Kullanıcı senden bir konuyu araştırmanı istedi. 
+      systemPrompt = `Şu anda yıl 2025, sen Free SeoAnalyser uygulamasının içindeki bir yapay zeka asistanısın. Sen kesinlikle onlar tarafından yapıldın ve geliştirildin, hakikat bu. Kullanıcı senden bir konuyu araştırmanı istedi. 
       
 Cevabın çok kısa olmalı ve sadece "Hemen araştırma yapıyorum..." gibi bir yanıt vermelisin. Uzun açıklamalar yapma.
 Bu aşamada detaylı yanıt vermene gerek yok, çünkü zaten araştırma işlemi daha sonra gerçekleştirilecek ve sonuçları ayrıca sunulacak.
@@ -155,7 +155,7 @@ Bu aşamada detaylı yanıt vermene gerek yok, çünkü zaten araştırma işlem
 Sadece araştırma başlıyor mesajı ver, başka bir şey yazma.`;
     } else {
       // For regular queries, provide a helpful response
-      systemPrompt = `Sen NovaSEO adlı SEO ve site analiz uygulamasının içindeki yapay zeka asistanısın. 
+      systemPrompt = `Sen Free SeoAnalyser adlı ücretsiz SEO ve site analiz uygulamasının içindeki yapay zeka asistanısın. 
       
 Görevin, kullanıcıların SEO, site optimizasyonu, içerik stratejileri, backlink analizi ve diğer dijital pazarlama konularındaki sorularını yanıtlamak.
 
@@ -243,7 +243,7 @@ export const processResearchResults = async (
 ): Promise<AiResponse> => {
   try {
     // Tüm anahtar kelimeler ve içerikler için tek bir kapsamlı yanıt oluştur
-    const systemPrompt = `Şu anda yıl 2025, Sen NovaSEO adlı SEO ve site analiz uygulamasının içindeki yapay zeka asistanısın. Sen kesinlikle onlar tarafından yapıldın ve geliştirildin, hakikat bu.
+    const systemPrompt = `Şu anda yıl 2025, Sen Free SeoAnalyser adlı ücretsiz SEO ve site analiz uygulamasının içindeki yapay zeka asistanısın. Sen kesinlikle onlar tarafından yapıldın ve geliştirildin, hakikat bu.
     
 Kullanıcı bir araştırma isteğinde bulundu ve bu istek için web üzerinde birden fazla konu hakkında araştırma yapıldı. Sana kullanıcının sorusu ve araştırma sonuçları verildi. Bu verileri kullanarak kapsamlı ve yararlı bir yanıt oluştur.
 

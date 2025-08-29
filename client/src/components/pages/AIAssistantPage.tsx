@@ -46,7 +46,7 @@ interface Message {
 const exampleConversation: Message[] = [
   {
     id: '1',
-    content: "Merhaba! Ben NovaSEO'nun AI Asistanı. SEO, backlink analizi ve site optimizasyonu konularında size nasıl yardımcı olabilirim?",
+    content: "Merhaba! Ben Free SeoAnalyser'nun AI Asistanı. SEO, backlink analizi ve site optimizasyonu konularında size nasıl yardımcı olabilirim?",
     sender: 'ai',
     timestamp: new Date(Date.now() - 1000 * 60 * 5) // 5 minutes ago
   }
@@ -499,7 +499,7 @@ const AIAssistantPage: React.FC = () => {
             </div>
             
             <p className="text-sm mb-3" style={{ color: colors.text.secondary }}>
-              NovaSEO AI'nin çalışması için DeepSeek API anahtarı gereklidir. 
+              Free SeoAnalyser AI'nin çalışması için DeepSeek API anahtarı gereklidir. 
               Varsayılan API anahtarı zaten eklenmiştir ama isterseniz değiştirebilirsiniz.
             </p>
             
@@ -687,7 +687,7 @@ const AIAssistantPage: React.FC = () => {
                       )}
                     </div>
                     <div className="font-medium" style={{ color: colors.text.primary }}>
-                      {message.sender === 'user' ? 'Sen' : 'NovaSEO AI'}
+                      {message.sender === 'user' ? 'Sen' : 'Free SeoAnalyser AI'}
                     </div>
                     <div className="text-xs ml-2">
                       {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -721,7 +721,7 @@ const AIAssistantPage: React.FC = () => {
                       <Bot size={16} style={{ color: colors.secondary }} />
                     </div>
                     <div className="font-medium" style={{ color: colors.text.primary }}>
-                      NovaSEO AI
+                      Free SeoAnalyser AI
                     </div>
                   </div>
                   

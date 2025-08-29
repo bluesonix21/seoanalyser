@@ -829,7 +829,7 @@ Daha fazla bilgi için güncel kaynakları ve sektörel blogları takip etmeyi u
             <div className="w-3 h-3 rounded-full bg-green-500"></div>
           </div>
           <div className="flex-1 text-center text-xs font-medium" style={{ color: colors.text.secondary }}>
-             NovaSEO Araştırma AI
+             Free SeoAnalyser Araştırma AI
           </div>
           <button
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
@@ -997,7 +997,7 @@ Daha fazla bilgi için güncel kaynakları ve sektörel blogları takip etmeyi u
                     style={{ backgroundColor: colors.background.card, color: colors.text.primary, border: `1px solid ${colors.border}` }}
                     onClick={() => step === 'typing_search' && !isTyping ? setStep('searching') : null} // Allow manual click if typing done
                   >
-                    NovaSEO ile Ara
+                    Free SeoAnalyser ile Ara
                   </button>
                   <button
                     className="px-4 py-2 rounded text-sm"
@@ -1147,7 +1147,7 @@ Daha fazla bilgi için güncel kaynakları ve sektörel blogları takip etmeyi u
             <span className="flex items-center"><FileText size={12} className="mr-1" /> {totalSources} Kaynak Toplandı</span>
           </div>
           <div className="flex items-center space-x-3">
-             <span className="flex items-center"><Star size={12} className="mr-1 text-yellow-500" /> NovaSEO AI</span>
+             <span className="flex items-center"><Star size={12} className="mr-1 text-yellow-500" /> Free SeoAnalyser AI</span>
           </div>
         </div>
 

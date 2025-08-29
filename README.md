@@ -1,6 +1,7 @@
-# NovaSEO - Advanced SEO Analysis & Web Research Platform
+# Free SeoAnalyser - Open Source SEO Analysis & Web Research Platform
 
 <div align="center">
+  <img src="https://img.shields.io/badge/FREE-Open%20Source-brightgreen?style=for-the-badge" alt="Free Open Source" />
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
   <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
@@ -10,7 +11,7 @@
 
 <br />
 
-**NovaSEO** is a powerful, AI-driven SEO analysis and web research platform designed to help digital marketers, content creators, and website owners optimize their online presence. Built with cutting-edge technologies and integrated with advanced AI capabilities, NovaSEO provides comprehensive insights and actionable recommendations for improving search engine rankings.
+**Free SeoAnalyser** is a completely free, open-source SEO analysis and web research platform designed to democratize SEO tools for everyone. No hidden fees, no premium tiers - just powerful SEO analysis tools available to all. Built with modern technologies and AI integration, Free SeoAnalyser provides professional-grade SEO insights and recommendations without the cost.
 
 ## 🌟 Key Features
 
@@ -46,8 +47,8 @@
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/yourusername/FantasyQuestRealm.git
-cd FantasyQuestRealm
+git clone https://github.com/bluesonix21/seoanalyser.git
+cd seoanalyser
 ```
 
 2. **Install dependencies:**

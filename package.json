@@ -1,8 +1,15 @@
 {
-  "name": "rest-express",
+  "name": "free-seoanalyser",
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
+  "description": "Free and open-source SEO analysis platform with AI-powered insights",
+  "keywords": ["seo", "free", "open-source", "analysis", "web-research", "ai"],
+  "author": "Free SeoAnalyser Contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bluesonix21/seoanalyser"
+  },
   "scripts": {
     "dev": "tsx server/index.ts",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",

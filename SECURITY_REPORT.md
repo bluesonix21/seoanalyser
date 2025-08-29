@@ -1,4 +1,4 @@
-# Güvenlik Analiz Raporu - FantasyQuestRealm Projesi
+# Güvenlik Analiz Raporu - Free SeoAnalyser
 
 ## Özet
 Bu rapor, projenin GitHub'da açık kaynak olarak paylaşılmadan önce yapılan güvenlik analizinin sonuçlarını içermektedir.
