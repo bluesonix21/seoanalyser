@@ -46,7 +46,7 @@ const itemVariants = {
 
 const Dashboard: React.FC = () => {
   const { colors } = useTheme();
-  const { seoData, backlinkData, competitorData, keywordData, performanceData } = useGame();
+  const { seoData, backlinkData, competitorData, keywordData, performanceData, loadingState, error } = useGame();
   const { playSound } = useAudio();
   
   // Play sound when component mounts
@@ -62,7 +62,7 @@ const Dashboard: React.FC = () => {
       icon: <BarChart2 size={24} />,
       color: colors.primary,
       path: '/seo-score',
-      value: seoData.score,
+      value: typeof seoData.score === 'number' ? seoData.score : '-',
       suffix: '/100',
       change: '+5%',
       changeType: 'positive'
@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
       icon: <LinkIcon size={24} />,
       color: colors.secondary,
       path: '/backlink-map',
-      value: backlinkData.total,
+      value: typeof backlinkData.total === 'number' ? backlinkData.total : '-',
       suffix: ' bağlantı',
       change: '+24',
       changeType: 'positive'
@@ -84,7 +84,7 @@ const Dashboard: React.FC = () => {
       icon: <Crosshair size={24} />,
       color: colors.info,
       path: '/competitor-analysis',
-      value: competitorData.length,
+      value: Array.isArray(competitorData as any) ? (competitorData as any).length : (competitorData && typeof competitorData.length === 'number' ? competitorData.length : '-'),
       suffix: ' rakip',
       change: '+1',
       changeType: 'neutral'
@@ -95,7 +95,7 @@ const Dashboard: React.FC = () => {
       icon: <Search size={24} />,
       color: colors.accent,
       path: '/keyword-research',
-      value: keywordData.length,
+      value: Array.isArray(keywordData as any) ? (keywordData as any).length : (keywordData && typeof keywordData.length === 'number' ? keywordData.length : '-'),
       suffix: ' kelime',
       change: '+3',
       changeType: 'positive'
@@ -106,10 +106,10 @@ const Dashboard: React.FC = () => {
       icon: <Activity size={24} />,
       color: colors.warning,
       path: '/performance-tracking',
-      value: performanceData.length > 0 ? performanceData[performanceData.length - 1].visitors : 0,
+      value: performanceData && Array.isArray(performanceData) && performanceData.length > 0 && typeof performanceData[performanceData.length - 1].visitors === 'number' ? performanceData[performanceData.length - 1].visitors : '-',
       suffix: ' ziyaretçi',
-      change: '+12%',
-      changeType: 'positive'
+      change: '',
+      changeType: 'neutral'
     },
     {
       title: 'İçerik Analizi',
@@ -128,7 +128,7 @@ const Dashboard: React.FC = () => {
       icon: <Wrench size={24} />,
       color: colors.error,
       path: '/site-audit',
-      value: seoData.issues,
+      value: Array.isArray(seoData.issues) ? seoData.issues.length : (typeof seoData.issues === 'number' ? seoData.issues : '-'),
       suffix: ' sorun',
       change: '-3',
       changeType: 'positive'
@@ -152,6 +152,13 @@ const Dashboard: React.FC = () => {
   const seoScoreRadius = (seoScoreCircleSize - seoScoreStrokeWidth) / 2;
   const seoScoreCircumference = 2 * Math.PI * seoScoreRadius;
   const seoScoreOffset = seoScoreCircumference - (seoData.score / 100) * seoScoreCircumference;
+  
+  if (loadingState === "loading") {
+    return <div className="text-center text-lg text-gray-300 py-12">Analiz verileri yükleniyor...</div>;
+  }
+  if (loadingState === "error") {
+    return <div className="text-center text-red-400 py-12">{error || "Veri alınamadı."}</div>;
+  }
   
   return (
     <div className="space-y-8">
@@ -178,13 +185,13 @@ const Dashboard: React.FC = () => {
                 <div className="flex items-center">
                   <AlertTriangle size={16} className="mr-2" style={{ color: colors.error }} />
                   <span className="text-sm" style={{ color: colors.text.secondary }}>
-                    {seoData.issues} Sorun
+                    {(Array.isArray(seoData.issues) ? seoData.issues.length : 0)} Sorun
                   </span>
                 </div>
                 <div className="flex items-center">
                   <TrendingUp size={16} className="mr-2" style={{ color: colors.warning }} />
                   <span className="text-sm" style={{ color: colors.text.secondary }}>
-                    {seoData.improvements} İyileştirme
+                    {(Array.isArray(seoData.improvements) ? seoData.improvements.length : 0)} İyileştirme
                   </span>
                 </div>
                 <div className="flex items-center">

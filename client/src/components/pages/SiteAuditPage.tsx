@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../theme/ThemeProvider';
 import { useAudio } from '../../lib/stores/useAudio';
+import { useGame } from '../../lib/stores/useGame';
 
 // Icons
 import { 
@@ -35,6 +36,7 @@ const SiteAuditPage: React.FC = () => {
   const { playSound } = useAudio();
   const [expandedCategory, setExpandedCategory] = useState<string | null>('critical');
   const [expandedIssue, setExpandedIssue] = useState<string | null>(null);
+  const { siteAuditData, loadingState, error } = useGame();
   
   // Toggle category expansion
   const toggleCategory = (category: string) => {
@@ -106,147 +108,12 @@ const SiteAuditPage: React.FC = () => {
     }
   };
   
-  // Mock issue data for the site audit
-  const issues = [
-    {
-      id: 'issue1',
-      title: 'Sayfa yükleme hızı çok yavaş',
-      description: 'Ana sayfa yükleme süresi ortalama 4.8 saniye. Google\'a göre ideal sayfa yükleme süresi 2 saniyenin altında olmalıdır.',
-      priority: 'critical',
-      category: 'performance',
-      affectedPages: [
-        {url: 'https://example.com/', loadTime: '4.8s'},
-        {url: 'https://example.com/blog', loadTime: '3.9s'},
-        {url: 'https://example.com/products', loadTime: '5.2s'}
-      ],
-      recommendation: 'Resimleri optimize edin, gereksiz JavaScript ve CSS dosyalarını azaltın ve tarayıcı önbelleğe almayı etkinleştirin',
-      impact: 'Yavaş yükleme hızı, kullanıcı deneyimini olumsuz etkiler ve dönüşüm oranlarını düşürür. Google, sayfa yükleme hızını sıralama faktörü olarak kullanır.'
-    },
-    {
-      id: 'issue2',
-      title: 'Meta açıklamaları eksik',
-      description: '23 sayfanın meta açıklama etiketi eksik. Meta açıklamalar arama sonuçlarında snippet olarak görüntülenir ve tıklama oranlarını etkiler.',
-      priority: 'high',
-      category: 'seo',
-      affectedPages: [
-        {url: 'https://example.com/about', meta: 'Eksik'},
-        {url: 'https://example.com/contact', meta: 'Eksik'},
-        {url: 'https://example.com/blog/post1', meta: 'Eksik'}
-      ],
-      recommendation: 'Tüm sayfalar için 150-160 karakter uzunluğunda, içeriği doğru şekilde tanımlayan ve anahtar kelimeler içeren meta açıklamalar ekleyin',
-      impact: 'Meta açıklamalar, arama sonuçlarında görünen snippet\'leri kontrol etmenizi sağlar. Doğru meta açıklamalar tıklama oranını artırabilir.'
-    },
-    {
-      id: 'issue3',
-      title: 'Mobil uyumluluk sorunları',
-      description: 'Web siteniz mobil cihazlarda düzgün görüntülenmiyor. Metin boyutları çok küçük ve tıklanabilir öğeler çok yakın yerleştirilmiş.',
-      priority: 'critical',
-      category: 'mobile',
-      affectedPages: [
-        {url: 'https://example.com/services', issue: 'Tıklanabilir öğeler çok yakın'},
-        {url: 'https://example.com/pricing', issue: 'Metin boyutu çok küçük'},
-        {url: 'https://example.com/gallery', issue: 'Yatay kaydırma gerekiyor'}
-      ],
-      recommendation: 'Mobil için duyarlı tasarım kullanın, metin boyutlarını artırın ve dokunmatik hedeflerin en az 48x48 piksel olduğundan emin olun',
-      impact: 'Google, mobil uyumluluğu bir sıralama faktörü olarak kullanır. Mobil uyumlu olmayan siteler, mobil arama sonuçlarında daha düşük sıralarda yer alacaktır.'
-    },
-    {
-      id: 'issue4',
-      title: 'Kırık dahili bağlantılar',
-      description: 'Sitede 14 kırık dahili bağlantı tespit edildi. Kırık bağlantılar kullanıcı deneyimini olumsuz etkiler ve SEO\'yu zayıflatır.',
-      priority: 'high',
-      category: 'links',
-      affectedPages: [
-        {url: 'https://example.com/blog/old-post', brokenLink: '/resources/ebook1'},
-        {url: 'https://example.com/services', brokenLink: '/case-studies/study3'},
-        {url: 'https://example.com/about', brokenLink: '/team/john-doe'}
-      ],
-      recommendation: 'Tüm kırık bağlantıları güncelleyin veya kaldırın ve düzenli olarak kırık bağlantı kontrolü yapın',
-      impact: 'Kırık bağlantılar, kullanıcıları hayal kırıklığına uğratır ve arama motorlarının sitenizi yeterince taramasını engeller, bu da sıralamanızı düşürebilir.'
-    },
-    {
-      id: 'issue5',
-      title: 'HTTPS güvenli bağlantı eksik',
-      description: 'Web siteniz HTTP üzerinden sunuluyor, güvenli HTTPS protokolü kullanmıyor. Modern web için HTTPS zorunludur.',
-      priority: 'critical',
-      category: 'security',
-      affectedPages: [
-        {url: 'http://example.com/', protocol: 'HTTP'},
-        {url: 'http://example.com/login', protocol: 'HTTP'},
-        {url: 'http://example.com/checkout', protocol: 'HTTP'}
-      ],
-      recommendation: 'SSL sertifikası edinin (Let\'s Encrypt ücretsiz olabilir) ve tüm HTTP trafiğini HTTPS\'ye yönlendirin',
-      impact: 'Google, HTTPS\'yi bir sıralama faktörü olarak kullanır. HTTPS olmayan siteler, kullanıcıların tarayıcısında "güvenli değil" olarak işaretlenir, bu da güveni azaltır.'
-    },
-    {
-      id: 'issue6',
-      title: 'Optimize edilmemiş görseller',
-      description: '32 görsel optimize edilmemiş, toplam sayfa boyutu gereksiz yere 8.4 MB artıyor. Bu, sayfa yükleme süresini önemli ölçüde yavaşlatır.',
-      priority: 'medium',
-      category: 'images',
-      affectedPages: [
-        {url: 'https://example.com/gallery', imageCount: '15 görsel'},
-        {url: 'https://example.com/products', imageCount: '12 görsel'},
-        {url: 'https://example.com/blog/post2', imageCount: '5 görsel'}
-      ],
-      recommendation: 'Tüm görselleri sıkıştırın, uygun formatlarda (WebP, JPEG 2000) kaydedin ve boyutları düzenleyin. Ayrıca, lazy loading tekniğini kullanın',
-      impact: 'Büyük görseller sayfa yükleme süresini artırır, bu da hem kullanıcı deneyimini hem de SEO sıralamalarını olumsuz etkiler.'
-    },
-    {
-      id: 'issue7',
-      title: 'H1 etiketleri eksik veya yanlış kullanılmış',
-      description: '10 sayfa tek bir H1 etiketi içermiyor ve 6 sayfa birden fazla H1 etiketine sahip. Her sayfada tek bir H1 etiketi olmalıdır.',
-      priority: 'high',
-      category: 'seo',
-      affectedPages: [
-        {url: 'https://example.com/services', h1: 'Eksik'},
-        {url: 'https://example.com/blog', h1: 'Birden fazla H1'},
-        {url: 'https://example.com/faq', h1: 'Eksik'}
-      ],
-      recommendation: 'Her sayfaya tek ve içeriği doğru şekilde tanımlayan bir H1 etiketi ekleyin. H1\'i sayfanın ana başlığı olarak kullanın',
-      impact: 'H1 etiketi, arama motorlarına sayfanın ana konusunu iletir ve SEO sıralamasında önemli bir faktördür.'
-    },
-    {
-      id: 'issue8',
-      title: 'Eksik veya optimize edilmemiş başlık etiketleri',
-      description: '18 sayfa, optimize edilmemiş başlık etiketlerine sahip. Başlıklar ya çok uzun, çok kısa veya marka adı içermiyor.',
-      priority: 'high',
-      category: 'seo',
-      affectedPages: [
-        {url: 'https://example.com/products', title: 'Ürünler'},
-        {url: 'https://example.com/blog/post3', title: 'Bu ürün kategorisinde aradığınız tüm ürünleri en uygun fiyatlarla bulabilirsiniz - Example.com'},
-        {url: 'https://example.com/contact', title: 'İletişim'}
-      ],
-      recommendation: 'Tüm başlık etiketlerini 50-60 karakter arasında tutun, anahtar kelimeleri başta kullanın ve marka adını ekleyin',
-      impact: 'Başlık etiketleri, arama sonuçlarında görünen ana başlıktır ve hem sıralama hem de tıklama oranı için kritik öneme sahiptir.'
-    },
-    {
-      id: 'issue9',
-      title: 'Mobil sayfa hızı yavaş',
-      description: 'Google PageSpeed Insights\'a göre, mobil hız puanınız 48/100. Mobil kullanıcılar için yavaş bir deneyim sunuyor.',
-      priority: 'high',
-      category: 'performance',
-      affectedPages: [
-        {url: 'https://example.com/', score: '48/100'},
-        {url: 'https://example.com/blog', score: '52/100'},
-        {url: 'https://example.com/products', score: '45/100'}
-      ],
-      recommendation: 'Mobil performansı artırmak için gereksiz JavaScript\'i kaldırın, görselleri optimize edin ve sunucu yanıt süresini iyileştirin',
-      impact: 'Mobil yükleme hızı, hem kullanıcı deneyimi hem de Google sıralamaları için kritik öneme sahiptir. Google, mobil öncelikli indeksleme kullanır.'
-    },
-    {
-      id: 'issue10',
-      title: 'Robots.txt eksik veya yanlış yapılandırılmış',
-      description: 'Sitenizin robots.txt dosyası eksik veya yanlış yapılandırılmış. Bu, arama motorlarının sitenizi nasıl tarayacağını kontrol edemediğiniz anlamına gelir.',
-      priority: 'medium',
-      category: 'seo',
-      affectedPages: [
-        {url: 'https://example.com/robots.txt', issue: 'Eksik'}
-      ],
-      recommendation: 'Uygun yönergelerle bir robots.txt dosyası oluşturun, arama motorlarının taramasını istemediğiniz dizinleri ve dosyaları belirtin',
-      impact: 'Robots.txt, arama motorlarına hangi içeriğin taranıp hangisinin taranmayacağını söyler. Doğru yapılandırma, tarama bütçenizi optimize eder.'
-    }
-  ];
+  if (loadingState === "loading") {
+    return <div className="text-center text-lg text-gray-300 py-12">Analiz verileri yükleniyor...</div>;
+  }
+  if (loadingState === "error") {
+    return <div className="text-center text-red-400 py-12">{error || "Veri alınamadı."}</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -555,156 +422,19 @@ const SiteAuditPage: React.FC = () => {
           
           {expandedCategory === 'critical' && (
             <div className="divide-y" style={{ borderColor: colors.border }}>
-              {issues
-                .filter(issue => issue.priority === 'critical')
-                .map(issue => (
-                  <div key={issue.id}>
-                    <button
-                      className={`w-full p-4 text-left flex items-center justify-between transition-colors ${
-                        expandedIssue === issue.id ? 'bg-white/5' : ''
-                      }`}
-                      onClick={() => toggleIssue(issue.id)}
-                    >
-                      <div className="flex items-center">
-                        {getIssueIcon(issue.category)}
-                        <span 
-                          className="ml-3 font-medium"
-                          style={{ color: colors.text.primary }}
-                        >
-                          {issue.title}
-                        </span>
-                      </div>
-                      
-                      {expandedIssue === issue.id ? (
-                        <ChevronDown size={18} style={{ color: colors.text.secondary }} />
-                      ) : (
-                        <ChevronRight size={18} style={{ color: colors.text.secondary }} />
-                      )}
-                    </button>
-                    
-                    {expandedIssue === issue.id && (
-                      <div className="p-4 bg-white/5">
-                        <p 
-                          className="mb-4"
-                          style={{ color: colors.text.secondary }}
-                        >
-                          {issue.description}
-                        </p>
-                        
-                        <div className="mb-4">
-                          <h4 
-                            className="text-sm font-medium mb-2"
-                            style={{ color: colors.text.primary }}
-                          >
-                            Etkilenen Sayfalar
-                          </h4>
-                          <div 
-                            className="rounded-lg border p-3"
-                            style={{ 
-                              backgroundColor: colors.background.main,
-                              borderColor: colors.border
-                            }}
-                          >
-                            <div className="space-y-2">
-                              {issue.affectedPages.map((page, index) => (
-                                <div 
-                                  key={index}
-                                  className="flex items-center justify-between"
-                                >
-                                  <div className="flex items-center">
-                                    <X size={14} className="mr-2" style={{ color: colors.error }} />
-                                    <span 
-                                      className="text-sm"
-                                      style={{ color: colors.text.primary }}
-                                    >
-                                      {page.url}
-                                    </span>
-                                  </div>
-                                  <div 
-                                    className="text-xs"
-                                    style={{ color: colors.text.secondary }}
-                                  >
-                                    {Object.values(page).filter(val => val !== page.url)[0]}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="mb-4">
-                          <h4 
-                            className="text-sm font-medium mb-2"
-                            style={{ color: colors.text.primary }}
-                          >
-                            Önerilen Çözüm
-                          </h4>
-                          <div 
-                            className="rounded-lg border p-3"
-                            style={{ 
-                              backgroundColor: `${colors.success}10`,
-                              borderColor: `${colors.success}30`
-                            }}
-                          >
-                            <div className="flex">
-                              <div className="mr-2 mt-0.5">
-                                <Check size={14} style={{ color: colors.success }} />
-                              </div>
-                              <p 
-                                className="text-sm"
-                                style={{ color: colors.text.primary }}
-                              >
-                                {issue.recommendation}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h4 
-                            className="text-sm font-medium mb-2"
-                            style={{ color: colors.text.primary }}
-                          >
-                            SEO Etkisi
-                          </h4>
-                          <div 
-                            className="rounded-lg border p-3"
-                            style={{ 
-                              backgroundColor: `${colors.warning}10`,
-                              borderColor: `${colors.warning}30`
-                            }}
-                          >
-                            <div className="flex">
-                              <div className="mr-2 mt-0.5">
-                                <AlertTriangle size={14} style={{ color: colors.warning }} />
-                              </div>
-                              <p 
-                                className="text-sm"
-                                style={{ color: colors.text.primary }}
-                              >
-                                {issue.impact}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-4 flex justify-end">
-                          <button
-                            className="flex items-center space-x-2 px-4 py-2 rounded-lg"
-                            style={{ 
-                              backgroundColor: colors.primary,
-                              color: '#fff'
-                            }}
-                            onClick={() => playSound('click')}
-                          >
-                            <Play size={16} />
-                            <span>Nasıl Düzeltilir</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+              {siteAuditData.categories.map((cat, idx) => (
+                <div key={cat.name} className="flex items-center justify-between p-4">
+                  <span style={{ color: colors.text.primary }}>{cat.name}</span>
+                  <span style={{
+                    color:
+                      cat.severity === 'error' ? colors.error :
+                      cat.severity === 'warning' ? colors.warning :
+                      colors.info
+                  }}>
+                    {cat.count} {cat.severity === 'error' ? 'sorun' : cat.severity === 'warning' ? 'uyarı' : 'bilgi'}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -761,156 +491,19 @@ const SiteAuditPage: React.FC = () => {
           
           {expandedCategory === 'high' && (
             <div className="divide-y" style={{ borderColor: colors.border }}>
-              {issues
-                .filter(issue => issue.priority === 'high')
-                .map(issue => (
-                  <div key={issue.id}>
-                    <button
-                      className={`w-full p-4 text-left flex items-center justify-between transition-colors ${
-                        expandedIssue === issue.id ? 'bg-white/5' : ''
-                      }`}
-                      onClick={() => toggleIssue(issue.id)}
-                    >
-                      <div className="flex items-center">
-                        {getIssueIcon(issue.category)}
-                        <span 
-                          className="ml-3 font-medium"
-                          style={{ color: colors.text.primary }}
-                        >
-                          {issue.title}
-                        </span>
-                      </div>
-                      
-                      {expandedIssue === issue.id ? (
-                        <ChevronDown size={18} style={{ color: colors.text.secondary }} />
-                      ) : (
-                        <ChevronRight size={18} style={{ color: colors.text.secondary }} />
-                      )}
-                    </button>
-                    
-                    {expandedIssue === issue.id && (
-                      <div className="p-4 bg-white/5">
-                        <p 
-                          className="mb-4"
-                          style={{ color: colors.text.secondary }}
-                        >
-                          {issue.description}
-                        </p>
-                        
-                        <div className="mb-4">
-                          <h4 
-                            className="text-sm font-medium mb-2"
-                            style={{ color: colors.text.primary }}
-                          >
-                            Etkilenen Sayfalar
-                          </h4>
-                          <div 
-                            className="rounded-lg border p-3"
-                            style={{ 
-                              backgroundColor: colors.background.main,
-                              borderColor: colors.border
-                            }}
-                          >
-                            <div className="space-y-2">
-                              {issue.affectedPages.map((page, index) => (
-                                <div 
-                                  key={index}
-                                  className="flex items-center justify-between"
-                                >
-                                  <div className="flex items-center">
-                                    <X size={14} className="mr-2" style={{ color: colors.error }} />
-                                    <span 
-                                      className="text-sm"
-                                      style={{ color: colors.text.primary }}
-                                    >
-                                      {page.url}
-                                    </span>
-                                  </div>
-                                  <div 
-                                    className="text-xs"
-                                    style={{ color: colors.text.secondary }}
-                                  >
-                                    {Object.values(page).filter(val => val !== page.url)[0]}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="mb-4">
-                          <h4 
-                            className="text-sm font-medium mb-2"
-                            style={{ color: colors.text.primary }}
-                          >
-                            Önerilen Çözüm
-                          </h4>
-                          <div 
-                            className="rounded-lg border p-3"
-                            style={{ 
-                              backgroundColor: `${colors.success}10`,
-                              borderColor: `${colors.success}30`
-                            }}
-                          >
-                            <div className="flex">
-                              <div className="mr-2 mt-0.5">
-                                <Check size={14} style={{ color: colors.success }} />
-                              </div>
-                              <p 
-                                className="text-sm"
-                                style={{ color: colors.text.primary }}
-                              >
-                                {issue.recommendation}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h4 
-                            className="text-sm font-medium mb-2"
-                            style={{ color: colors.text.primary }}
-                          >
-                            SEO Etkisi
-                          </h4>
-                          <div 
-                            className="rounded-lg border p-3"
-                            style={{ 
-                              backgroundColor: `${colors.warning}10`,
-                              borderColor: `${colors.warning}30`
-                            }}
-                          >
-                            <div className="flex">
-                              <div className="mr-2 mt-0.5">
-                                <AlertTriangle size={14} style={{ color: colors.warning }} />
-                              </div>
-                              <p 
-                                className="text-sm"
-                                style={{ color: colors.text.primary }}
-                              >
-                                {issue.impact}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-4 flex justify-end">
-                          <button
-                            className="flex items-center space-x-2 px-4 py-2 rounded-lg"
-                            style={{ 
-                              backgroundColor: colors.primary,
-                              color: '#fff'
-                            }}
-                            onClick={() => playSound('click')}
-                          >
-                            <Play size={16} />
-                            <span>Nasıl Düzeltilir</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+              {siteAuditData.categories.map((cat, idx) => (
+                <div key={cat.name} className="flex items-center justify-between p-4">
+                  <span style={{ color: colors.text.primary }}>{cat.name}</span>
+                  <span style={{
+                    color:
+                      cat.severity === 'error' ? colors.error :
+                      cat.severity === 'warning' ? colors.warning :
+                      colors.info
+                  }}>
+                    {cat.count} {cat.severity === 'error' ? 'sorun' : cat.severity === 'warning' ? 'uyarı' : 'bilgi'}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -967,156 +560,19 @@ const SiteAuditPage: React.FC = () => {
           
           {expandedCategory === 'medium' && (
             <div className="divide-y" style={{ borderColor: colors.border }}>
-              {issues
-                .filter(issue => issue.priority === 'medium')
-                .map(issue => (
-                  <div key={issue.id}>
-                    <button
-                      className={`w-full p-4 text-left flex items-center justify-between transition-colors ${
-                        expandedIssue === issue.id ? 'bg-white/5' : ''
-                      }`}
-                      onClick={() => toggleIssue(issue.id)}
-                    >
-                      <div className="flex items-center">
-                        {getIssueIcon(issue.category)}
-                        <span 
-                          className="ml-3 font-medium"
-                          style={{ color: colors.text.primary }}
-                        >
-                          {issue.title}
-                        </span>
-                      </div>
-                      
-                      {expandedIssue === issue.id ? (
-                        <ChevronDown size={18} style={{ color: colors.text.secondary }} />
-                      ) : (
-                        <ChevronRight size={18} style={{ color: colors.text.secondary }} />
-                      )}
-                    </button>
-                    
-                    {expandedIssue === issue.id && (
-                      <div className="p-4 bg-white/5">
-                        <p 
-                          className="mb-4"
-                          style={{ color: colors.text.secondary }}
-                        >
-                          {issue.description}
-                        </p>
-                        
-                        <div className="mb-4">
-                          <h4 
-                            className="text-sm font-medium mb-2"
-                            style={{ color: colors.text.primary }}
-                          >
-                            Etkilenen Sayfalar
-                          </h4>
-                          <div 
-                            className="rounded-lg border p-3"
-                            style={{ 
-                              backgroundColor: colors.background.main,
-                              borderColor: colors.border
-                            }}
-                          >
-                            <div className="space-y-2">
-                              {issue.affectedPages.map((page, index) => (
-                                <div 
-                                  key={index}
-                                  className="flex items-center justify-between"
-                                >
-                                  <div className="flex items-center">
-                                    <X size={14} className="mr-2" style={{ color: colors.error }} />
-                                    <span 
-                                      className="text-sm"
-                                      style={{ color: colors.text.primary }}
-                                    >
-                                      {page.url}
-                                    </span>
-                                  </div>
-                                  <div 
-                                    className="text-xs"
-                                    style={{ color: colors.text.secondary }}
-                                  >
-                                    {Object.values(page).filter(val => val !== page.url)[0]}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="mb-4">
-                          <h4 
-                            className="text-sm font-medium mb-2"
-                            style={{ color: colors.text.primary }}
-                          >
-                            Önerilen Çözüm
-                          </h4>
-                          <div 
-                            className="rounded-lg border p-3"
-                            style={{ 
-                              backgroundColor: `${colors.success}10`,
-                              borderColor: `${colors.success}30`
-                            }}
-                          >
-                            <div className="flex">
-                              <div className="mr-2 mt-0.5">
-                                <Check size={14} style={{ color: colors.success }} />
-                              </div>
-                              <p 
-                                className="text-sm"
-                                style={{ color: colors.text.primary }}
-                              >
-                                {issue.recommendation}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h4 
-                            className="text-sm font-medium mb-2"
-                            style={{ color: colors.text.primary }}
-                          >
-                            SEO Etkisi
-                          </h4>
-                          <div 
-                            className="rounded-lg border p-3"
-                            style={{ 
-                              backgroundColor: `${colors.warning}10`,
-                              borderColor: `${colors.warning}30`
-                            }}
-                          >
-                            <div className="flex">
-                              <div className="mr-2 mt-0.5">
-                                <AlertTriangle size={14} style={{ color: colors.warning }} />
-                              </div>
-                              <p 
-                                className="text-sm"
-                                style={{ color: colors.text.primary }}
-                              >
-                                {issue.impact}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-4 flex justify-end">
-                          <button
-                            className="flex items-center space-x-2 px-4 py-2 rounded-lg"
-                            style={{ 
-                              backgroundColor: colors.primary,
-                              color: '#fff'
-                            }}
-                            onClick={() => playSound('click')}
-                          >
-                            <Play size={16} />
-                            <span>Nasıl Düzeltilir</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+              {siteAuditData.categories.map((cat, idx) => (
+                <div key={cat.name} className="flex items-center justify-between p-4">
+                  <span style={{ color: colors.text.primary }}>{cat.name}</span>
+                  <span style={{
+                    color:
+                      cat.severity === 'error' ? colors.error :
+                      cat.severity === 'warning' ? colors.warning :
+                      colors.info
+                  }}>
+                    {cat.count} {cat.severity === 'error' ? 'sorun' : cat.severity === 'warning' ? 'uyarı' : 'bilgi'}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
         </div>

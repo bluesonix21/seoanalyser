@@ -41,117 +41,15 @@ interface ContentItem {
   issues: {
     type: 'critical' | 'warning' | 'suggestion';
     message: string;
+    suggestion: string;
+    impact?: string;
   }[];
   recommendations: string[];
 }
 
-// Mock content data
-const contentItems: ContentItem[] = [
-  {
-    id: '1',
-    url: '/blog/seo-tips-2023',
-    title: 'Top SEO Tips for 2023',
-    length: 2456,
-    score: 92,
-    readability: 78,
-    lastUpdated: '2023-04-12',
-    published: '2023-01-15',
-    keywords: ['seo tips', 'seo strategy', 'seo 2023', 'search engine optimization'],
-    issues: [
-      { type: 'warning', message: 'Add more internal links to improve link structure' },
-      { type: 'suggestion', message: 'Consider adding more examples to increase reader engagement' }
-    ],
-    recommendations: [
-      'Add 2-3 more internal links to relevant content',
-      'Update the statistics in the third paragraph',
-      'Consider adding a FAQ section at the end'
-    ]
-  },
-  {
-    id: '2',
-    url: '/blog/backlink-strategies',
-    title: 'Effective Backlink Strategies',
-    length: 3124,
-    score: 85,
-    readability: 82,
-    lastUpdated: '2023-03-28',
-    published: '2023-02-10',
-    keywords: ['backlink strategies', 'link building', 'quality backlinks', 'seo backlinks'],
-    issues: [
-      { type: 'critical', message: 'Missing meta description, add one to improve SERP appearance' },
-      { type: 'warning', message: 'Content is slightly keyword stuffed, consider revising' },
-      { type: 'suggestion', message: 'Add more visuals to break up text' }
-    ],
-    recommendations: [
-      'Add a compelling meta description of 150-160 characters',
-      'Reduce keyword density from 3.8% to around 2%',
-      'Add at least 2 more relevant images or infographics'
-    ]
-  },
-  {
-    id: '3',
-    url: '/blog/keyword-research',
-    title: 'Advanced Keyword Research',
-    length: 1876,
-    score: 79,
-    readability: 75,
-    lastUpdated: '2023-05-02',
-    published: '2023-01-28',
-    keywords: ['keyword research', 'seo keywords', 'keyword analysis', 'long tail keywords'],
-    issues: [
-      { type: 'warning', message: 'Content is shorter than competitors (avg. 2500 words)' },
-      { type: 'warning', message: 'Readability could be improved, too many complex sentences' },
-      { type: 'suggestion', message: 'Add more recent keyword research tools' }
-    ],
-    recommendations: [
-      'Expand content by at least 500 words with valuable information',
-      'Simplify sentences in the methodology section',
-      'Update with 2-3 new keyword research tools for 2023'
-    ]
-  },
-  {
-    id: '4',
-    url: '/blog/mobile-optimization',
-    title: 'Mobile SEO Optimization',
-    length: 2234,
-    score: 88,
-    readability: 80,
-    lastUpdated: '2023-04-19',
-    published: '2023-03-05',
-    keywords: ['mobile seo', 'mobile optimization', 'mobile-friendly', 'responsive design'],
-    issues: [
-      { type: 'suggestion', message: 'Add more case studies to strengthen your arguments' }
-    ],
-    recommendations: [
-      'Add at least one case study showing mobile optimization success',
-      'Update the section on mobile page speed with latest benchmarks',
-      'Add a section on mobile-first indexing best practices'
-    ]
-  },
-  {
-    id: '5',
-    url: '/case-studies/ecommerce-seo',
-    title: 'E-commerce SEO Case Study',
-    length: 3456,
-    score: 94,
-    readability: 76,
-    lastUpdated: '2023-05-10',
-    published: '2023-02-22',
-    keywords: ['ecommerce seo', 'online store optimization', 'ecommerce case study', 'product page seo'],
-    issues: [
-      { type: 'suggestion', message: 'Add more specific metrics to strengthen the case study' }
-    ],
-    recommendations: [
-      'Include specific conversion rate improvement data',
-      'Add more technical details on the implementation',
-      'Consider adding a section on lessons learned'
-    ]
-  }
-];
-
 const ContentAnalysisPage: React.FC = () => {
   const { colors } = useTheme();
-  const { contentData } = useGame();
+  const { contentData, loadingState, error } = useGame();
   const { playSound } = useAudio();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('score');
@@ -159,12 +57,10 @@ const ContentAnalysisPage: React.FC = () => {
   const [isAddingContent, setIsAddingContent] = useState(false);
   
   // Filter content items based on search query
-  const filteredItems = contentItems.filter(item => 
+  const filteredItems = contentData.filter(item => 
     item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.keywords.some(keyword => keyword.toLowerCase().includes(searchQuery.toLowerCase()))
+    item.url.toLowerCase().includes(searchQuery.toLowerCase())
   ).sort((a, b) => {
-    // Sort based on selected criteria
     switch (sortBy) {
       case 'score':
         return b.score - a.score;
@@ -172,24 +68,22 @@ const ContentAnalysisPage: React.FC = () => {
         return b.length - a.length;
       case 'readability':
         return b.readability - a.readability;
-      case 'date':
-        return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
       default:
         return 0;
     }
   });
   
   // Get average content score
-  const avgScore = contentItems.reduce((sum, item) => sum + item.score, 0) / contentItems.length;
+  const avgScore = contentData.length > 0 ? contentData.reduce((sum, item) => sum + item.score, 0) / contentData.length : 0;
   
   // Get average readability score
-  const avgReadability = contentItems.reduce((sum, item) => sum + item.readability, 0) / contentItems.length;
+  const avgReadability = contentData.length > 0 ? contentData.reduce((sum, item) => sum + item.readability, 0) / contentData.length : 0;
   
   // Get total content count
-  const totalContent = contentItems.length;
+  const totalContent = contentData.length;
   
   // Get total word count
-  const totalWords = contentItems.reduce((sum, item) => sum + item.length, 0);
+  const totalWords = contentData.reduce((sum, item) => sum + item.length, 0);
   
   // Toggle expanded item
   const toggleExpand = (id: string) => {
@@ -239,6 +133,13 @@ const ContentAnalysisPage: React.FC = () => {
     }
   };
 
+  if (loadingState === "loading") {
+    return <div className="text-center text-lg text-gray-300 py-12">Analiz verileri yükleniyor...</div>;
+  }
+  if (loadingState === "error") {
+    return <div className="text-center text-red-400 py-12">{error || "Veri alınamadı."}</div>;
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -275,74 +176,85 @@ const ContentAnalysisPage: React.FC = () => {
       
       {/* Content Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div 
-          className="p-4 rounded-lg flex items-center space-x-4"
-          style={{ backgroundColor: colors.background.card }}
+        {/* SEO Score Stat */}
+        <motion.div 
+          className="p-4 rounded-xl flex items-center space-x-4 shadow-lg bg-gradient-to-br from-[${colors.primary}] to-[${colors.secondary}] relative overflow-hidden"
+          whileHover={{ scale: 1.04 }}
+          transition={{ type: 'spring', stiffness: 300 }}
         >
           <div 
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: `${colors.primary}20`, color: colors.primary }}
+            className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 border-2 border-white/20"
+            style={{ color: colors.primary }}
           >
-            <FileText size={24} />
+            <BarChart2 size={28} />
           </div>
           <div>
-            <p className="text-sm" style={{ color: colors.text.secondary }}>İçerik Sayısı</p>
-            <h3 className="text-2xl font-bold" style={{ color: colors.text.primary }}>{totalContent}</h3>
+            <p className="text-sm font-semibold text-white/80">Ort. SEO Puanı</p>
+            <h3 className="text-3xl font-extrabold text-white drop-shadow">{Math.round(avgScore)}/100</h3>
           </div>
-        </div>
-        
-        <div 
-          className="p-4 rounded-lg flex items-center space-x-4"
-          style={{ backgroundColor: colors.background.card }}
+          {avgScore >= 90 && (
+            <span className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full shadow">Mükemmel</span>
+          )}
+        </motion.div>
+        {/* Readability Stat */}
+        <motion.div 
+          className="p-4 rounded-xl flex items-center space-x-4 shadow-lg bg-gradient-to-br from-[${colors.accent}] to-[${colors.primary}] relative overflow-hidden"
+          whileHover={{ scale: 1.04 }}
+          transition={{ type: 'spring', stiffness: 300 }}
         >
           <div 
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: `${colors.secondary}20`, color: colors.secondary }}
+            className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 border-2 border-white/20"
+            style={{ color: colors.accent }}
           >
-            <BarChart2 size={24} />
+            <PenTool size={28} />
           </div>
           <div>
-            <p className="text-sm" style={{ color: colors.text.secondary }}>Ort. SEO Puanı</p>
-            <h3 className="text-2xl font-bold" style={{ color: colors.text.primary }}>{Math.round(avgScore)}/100</h3>
+            <p className="text-sm font-semibold text-white/80">Ort. Okunabilirlik</p>
+            <h3 className="text-3xl font-extrabold text-white drop-shadow">{Math.round(avgReadability)}/100</h3>
           </div>
-        </div>
-        
-        <div 
-          className="p-4 rounded-lg flex items-center space-x-4"
-          style={{ backgroundColor: colors.background.card }}
+          {avgReadability >= 80 && (
+            <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full shadow">Çok İyi</span>
+          )}
+        </motion.div>
+        {/* Content Count Stat */}
+        <motion.div 
+          className="p-4 rounded-xl flex items-center space-x-4 shadow-lg bg-gradient-to-br from-[${colors.secondary}] to-[${colors.success}] relative overflow-hidden"
+          whileHover={{ scale: 1.04 }}
+          transition={{ type: 'spring', stiffness: 300 }}
         >
           <div 
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: `${colors.accent}20`, color: colors.accent }}
+            className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 border-2 border-white/20"
+            style={{ color: colors.secondary }}
           >
-            <PenTool size={24} />
+            <FileText size={28} />
           </div>
           <div>
-            <p className="text-sm" style={{ color: colors.text.secondary }}>Ort. Okunabilirlik</p>
-            <h3 className="text-2xl font-bold" style={{ color: colors.text.primary }}>{Math.round(avgReadability)}/100</h3>
+            <p className="text-sm font-semibold text-white/80">İçerik Sayısı</p>
+            <h3 className="text-3xl font-extrabold text-white drop-shadow">{totalContent}</h3>
           </div>
-        </div>
-        
-        <div 
-          className="p-4 rounded-lg flex items-center space-x-4"
-          style={{ backgroundColor: colors.background.card }}
+        </motion.div>
+        {/* Total Words Stat */}
+        <motion.div 
+          className="p-4 rounded-xl flex items-center space-x-4 shadow-lg bg-gradient-to-br from-[${colors.success}] to-[${colors.accent}] relative overflow-hidden"
+          whileHover={{ scale: 1.04 }}
+          transition={{ type: 'spring', stiffness: 300 }}
         >
           <div 
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: `${colors.success}20`, color: colors.success }}
+            className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 border-2 border-white/20"
+            style={{ color: colors.success }}
           >
-            <Clock size={24} />
+            <Clock size={28} />
           </div>
           <div>
-            <p className="text-sm" style={{ color: colors.text.secondary }}>Toplam Kelime</p>
-            <h3 className="text-2xl font-bold" style={{ color: colors.text.primary }}>{totalWords.toLocaleString()}</h3>
+            <p className="text-sm font-semibold text-white/80">Toplam Kelime</p>
+            <h3 className="text-3xl font-extrabold text-white drop-shadow">{totalWords.toLocaleString()}</h3>
           </div>
-        </div>
+        </motion.div>
       </div>
       
       {/* Content List */}
       <div 
-        className="rounded-lg border overflow-hidden"
+        className="rounded-2xl border overflow-hidden mt-8"
         style={{ 
           backgroundColor: colors.background.card,
           borderColor: colors.border
@@ -386,7 +298,6 @@ const ContentAnalysisPage: React.FC = () => {
                   <option value="score" style={{ backgroundColor: colors.background.main }}>SEO Puanı</option>
                   <option value="readability" style={{ backgroundColor: colors.background.main }}>Okunabilirlik</option>
                   <option value="length" style={{ backgroundColor: colors.background.main }}>İçerik Uzunluğu</option>
-                  <option value="date" style={{ backgroundColor: colors.background.main }}>Son Güncelleme</option>
                 </select>
               </div>
               
@@ -458,32 +369,40 @@ const ContentAnalysisPage: React.FC = () => {
           {filteredItems.length > 0 ? (
             <div className="divide-y" style={{ borderColor: colors.border }}>
               {filteredItems.map((item) => (
-                <div key={item.id} style={{ borderColor: colors.border }}>
+                <motion.div 
+                  key={item.url} 
+                  style={{ borderColor: colors.border }}
+                  className="transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] bg-gradient-to-br from-white/5 to-white/0 rounded-xl my-2"
+                  whileHover={{ scale: 1.01 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 200 }}
+                >
                   {/* Content Header */}
                   <div 
-                    className={`p-4 flex items-start justify-between cursor-pointer transition-colors ${
-                      expandedItem === item.id ? 'bg-white/5' : 'hover:bg-white/5'
-                    }`}
-                    onClick={() => toggleExpand(item.id)}
+                    className={`p-4 flex items-start justify-between cursor-pointer transition-colors`}
+                    onClick={() => toggleExpand(item.url)}
                   >
                     <div className="flex-1">
                       <div className="flex items-center mb-1">
                         <h3 
-                          className="font-medium mr-3"
+                          className="font-medium mr-3 text-lg"
                           style={{ color: colors.text.primary }}
                         >
                           {item.title}
                         </h3>
                         {item.score >= 90 && (
                           <div 
-                            className="px-2 py-0.5 rounded text-xs flex items-center"
-                            style={{ 
-                              backgroundColor: `${colors.success}20`,
-                              color: colors.success
-                            }}
+                            className="px-2 py-0.5 rounded text-xs flex items-center bg-green-500/20 text-green-600 font-semibold ml-2"
                           >
                             <Sparkles size={12} className="mr-1" />
                             <span>Mükemmel</span>
+                          </div>
+                        )}
+                        {item.score < 70 && (
+                          <div className="px-2 py-0.5 rounded text-xs flex items-center bg-yellow-400/20 text-yellow-700 font-semibold ml-2">
+                            <AlertTriangle size={12} className="mr-1" />
+                            <span>Geliştirilmeli</span>
                           </div>
                         )}
                       </div>
@@ -493,7 +412,7 @@ const ContentAnalysisPage: React.FC = () => {
                       >
                         {item.url}
                       </p>
-                      <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-4 mb-2">
                         <div 
                           className="flex items-center"
                           style={{ color: colors.text.secondary }}
@@ -527,15 +446,14 @@ const ContentAnalysisPage: React.FC = () => {
                           <FileText size={14} className="mr-1" />
                           <span className="text-sm">{item.length} kelime</span>
                         </div>
-                        <div 
-                          className="flex items-center"
-                          style={{ color: colors.text.secondary }}
-                        >
-                          <Clock size={14} className="mr-1" />
-                          <span className="text-sm">
-                            Son Güncelleme: {new Date(item.lastUpdated).toLocaleDateString('tr-TR')}
-                          </span>
-                        </div>
+                      </div>
+                      {/* Kısa analiz cümlesi */}
+                      <div className="text-xs italic text-gray-400 mb-1">
+                        {item.score >= 90
+                          ? 'Bu içerik SEO açısından mükemmel durumda.'
+                          : item.score >= 70
+                            ? 'İçeriğiniz iyi, ancak daha yüksek skor için optimizasyon yapılabilir.'
+                            : 'SEO skorunuz düşük, başlık, anahtar kelime ve içerik yapısını gözden geçirin.'}
                       </div>
                     </div>
                     <div className="flex ml-4">
@@ -560,254 +478,69 @@ const ContentAnalysisPage: React.FC = () => {
                           <ExternalLink size={18} style={{ color: colors.secondary }} />
                         </button>
                       </div>
-                      
-                      {expandedItem === item.id ? (
-                        <ChevronDown size={18} style={{ color: colors.text.secondary }} />
-                      ) : (
-                        <ChevronRight size={18} style={{ color: colors.text.secondary }} />
-                      )}
                     </div>
                   </div>
-                  
                   {/* Expanded Content Details */}
-                  {expandedItem === item.id && (
-                    <div className="p-4 bg-white/5">
+                  {expandedItem === item.url && (
+                    <motion.div 
+                      className="p-4 bg-white/10 rounded-b-xl"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                    >
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Content Issues */}
                         <div>
                           <h4 
                             className="text-sm font-medium mb-3 flex items-center"
                             style={{ color: colors.text.primary }}
                           >
-                            <AlertTriangle size={16} className="mr-2" />
-                            Sorunlar ve İyileştirmeler ({item.issues.length})
+                            İçerik Bilgileri
                           </h4>
-                          
-                          {item.issues.length > 0 ? (
-                            <div className="space-y-2">
-                              {item.issues.map((issue, index) => (
-                                <div 
-                                  key={index}
-                                  className="p-3 rounded-lg border"
-                                  style={{ 
-                                    backgroundColor: colors.background.main,
-                                    borderColor: colors.border
-                                  }}
-                                >
-                                  <div className="flex items-start">
-                                    <div className="mr-2 mt-0.5">
-                                      {getIssueIcon(issue.type)}
-                                    </div>
-                                    <div>
-                                      <p 
-                                        className="text-sm"
-                                        style={{ color: colors.text.primary }}
-                                      >
-                                        {issue.message}
-                                      </p>
-                                    </div>
+                          <ul className="text-sm" style={{ color: colors.text.secondary }}>
+                            <li>Başlık: {item.title}</li>
+                            <li>URL: {item.url}</li>
+                            <li>Uzunluk: {item.length} kelime</li>
+                            <li>SEO Skoru: {item.score}/100</li>
+                            <li>Okunabilirlik: {item.readability}/100</li>
+                          </ul>
+                        </div>
+                        {/* Sorunlar ve öneriler */}
+                        <div className="md:col-span-2">
+                          <h4 className="text-sm font-medium mb-3 flex items-center" style={{ color: colors.text.primary }}>
+                            <AlertTriangle size={16} className="mr-2" style={{ color: colors.warning }} />
+                            Sorunlar &amp; Öneriler
+                          </h4>
+                          {item.issues && item.issues.length > 0 ? (
+                            <ul className="space-y-3">
+                              {item.issues.map((issue, idx) => (
+                                <li key={idx} className="p-3 rounded-lg border bg-white/5" style={{ borderColor: colors.border }}>
+                                  <div className="flex items-center mb-1">
+                                    {getIssueIcon(issue.type)}
+                                    <span className="ml-2 font-semibold" style={{ color: colors.text.primary }}>
+                                      {issue.type === 'warning' ? 'Uyarı' : issue.type === 'critical' ? 'Kritik' : 'Bilgi'}
+                                    </span>
                                   </div>
-                                </div>
+                                  <div className="text-sm mb-1" style={{ color: colors.text.secondary }}>
+                                    {issue.message}
+                                  </div>
+                                  <div className="text-xs text-gray-400">
+                                    <span className="font-medium">Öneri:</span> {issue.suggestion}
+                                    {issue.impact && (
+                                      <span className="ml-2">(Etki: {issue.impact})</span>
+                                    )}
+                                  </div>
+                                </li>
                               ))}
-                            </div>
+                            </ul>
                           ) : (
-                            <div 
-                              className="p-3 rounded-lg border"
-                              style={{ 
-                                backgroundColor: colors.background.main,
-                                borderColor: colors.border
-                              }}
-                            >
-                              <p 
-                                className="text-sm text-center"
-                                style={{ color: colors.text.secondary }}
-                              >
-                                Hiçbir sorun bulunamadı
-                              </p>
-                            </div>
+                            <div className="text-xs text-gray-400">Herhangi bir sorun veya öneri bulunamadı.</div>
                           )}
                         </div>
-                        
-                        {/* Recommendations */}
-                        <div>
-                          <h4 
-                            className="text-sm font-medium mb-3 flex items-center"
-                            style={{ color: colors.text.primary }}
-                          >
-                            <Lightbulb size={16} className="mr-2" />
-                            İyileştirme Önerileri ({item.recommendations.length})
-                          </h4>
-                          
-                          {item.recommendations.length > 0 ? (
-                            <div className="space-y-2">
-                              {item.recommendations.map((recommendation, index) => (
-                                <div 
-                                  key={index}
-                                  className="p-3 rounded-lg border"
-                                  style={{ 
-                                    backgroundColor: colors.background.main,
-                                    borderColor: colors.border
-                                  }}
-                                >
-                                  <div className="flex items-start">
-                                    <div 
-                                      className="mr-2 mt-0.5 w-5 h-5 rounded-full flex items-center justify-center text-xs"
-                                      style={{ 
-                                        backgroundColor: `${colors.primary}20`,
-                                        color: colors.primary
-                                      }}
-                                    >
-                                      {index + 1}
-                                    </div>
-                                    <div>
-                                      <p 
-                                        className="text-sm"
-                                        style={{ color: colors.text.primary }}
-                                      >
-                                        {recommendation}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div 
-                              className="p-3 rounded-lg border"
-                              style={{ 
-                                backgroundColor: colors.background.main,
-                                borderColor: colors.border
-                              }}
-                            >
-                              <p 
-                                className="text-sm text-center"
-                                style={{ color: colors.text.secondary }}
-                              >
-                                İyileştirme önerisi yok
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Keywords and Metadata */}
-                        <div>
-                          <h4 
-                            className="text-sm font-medium mb-3 flex items-center"
-                            style={{ color: colors.text.primary }}
-                          >
-                            <Search size={16} className="mr-2" />
-                            Anahtar Kelimeler ve Meta Bilgiler
-                          </h4>
-                          
-                          <div 
-                            className="p-3 rounded-lg border mb-3"
-                            style={{ 
-                              backgroundColor: colors.background.main,
-                              borderColor: colors.border
-                            }}
-                          >
-                            <h5 
-                              className="text-xs mb-2"
-                              style={{ color: colors.text.secondary }}
-                            >
-                              Anahtar Kelimeler
-                            </h5>
-                            <div className="flex flex-wrap gap-2">
-                              {item.keywords.map((keyword, index) => (
-                                <div 
-                                  key={index}
-                                  className="px-2 py-1 rounded-full text-xs border"
-                                  style={{ 
-                                    borderColor: colors.border,
-                                    color: colors.text.primary
-                                  }}
-                                >
-                                  {keyword}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          
-                          <div 
-                            className="p-3 rounded-lg border"
-                            style={{ 
-                              backgroundColor: colors.background.main,
-                              borderColor: colors.border
-                            }}
-                          >
-                            <h5 
-                              className="text-xs mb-2"
-                              style={{ color: colors.text.secondary }}
-                            >
-                              Meta Bilgiler
-                            </h5>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                              <div>
-                                <p className="text-xs" style={{ color: colors.text.secondary }}>Yayınlanma</p>
-                                <p style={{ color: colors.text.primary }}>{new Date(item.published).toLocaleDateString('tr-TR')}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs" style={{ color: colors.text.secondary }}>Son Güncelleme</p>
-                                <p style={{ color: colors.text.primary }}>{new Date(item.lastUpdated).toLocaleDateString('tr-TR')}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
                       </div>
-                      
-                      {/* Actions */}
-                      <div className="flex justify-end mt-4 space-x-3">
-                        <button
-                          className="px-3 py-2 rounded-lg flex items-center text-sm"
-                          style={{ 
-                            backgroundColor: `${colors.error}10`,
-                            color: colors.error
-                          }}
-                          onClick={() => playSound('click')}
-                        >
-                          <Trash2 size={16} className="mr-1.5" />
-                          <span>Sil</span>
-                        </button>
-                        
-                        <button
-                          className="px-3 py-2 rounded-lg flex items-center text-sm"
-                          style={{ 
-                            backgroundColor: `${colors.secondary}10`,
-                            color: colors.secondary
-                          }}
-                          onClick={() => playSound('click')}
-                        >
-                          <Eye size={16} className="mr-1.5" />
-                          <span>Önizleme</span>
-                        </button>
-                        
-                        <button
-                          className="px-3 py-2 rounded-lg flex items-center text-sm"
-                          style={{ 
-                            backgroundColor: `${colors.success}10`,
-                            color: colors.success
-                          }}
-                          onClick={() => playSound('click')}
-                        >
-                          <Share2 size={16} className="mr-1.5" />
-                          <span>Paylaş</span>
-                        </button>
-                        
-                        <button
-                          className="px-3 py-2 rounded-lg flex items-center text-sm"
-                          style={{ 
-                            backgroundColor: colors.primary,
-                            color: '#fff'
-                          }}
-                          onClick={() => playSound('click')}
-                        >
-                          <Edit size={16} className="mr-1.5" />
-                          <span>Düzenle</span>
-                        </button>
-                      </div>
-                    </div>
+                    </motion.div>
                   )}
-                </div>
+                </motion.div>
               ))}
             </div>
           ) : (

@@ -115,7 +115,7 @@ const competitorDetails: Record<string, CompetitorDetailData> = {
 
 const CompetitorAnalysisPage: React.FC = () => {
   const { colors } = useTheme();
-  const { competitorData } = useGame();
+  const { competitorData, loadingState, error } = useGame();
   const { playSound } = useAudio();
   const [activeTab, setActiveTab] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
@@ -207,6 +207,13 @@ const CompetitorAnalysisPage: React.FC = () => {
     
     return colors[index % colors.length];
   };
+
+  if (loadingState === "loading") {
+    return <div className="text-center text-lg text-gray-300 py-12">Analiz verileri yükleniyor...</div>;
+  }
+  if (loadingState === "error") {
+    return <div className="text-center text-red-400 py-12">{error || "Veri alınamadı."}</div>;
+  }
 
   return (
     <div className="space-y-6">

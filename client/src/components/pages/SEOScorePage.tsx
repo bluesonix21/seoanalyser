@@ -22,129 +22,60 @@ import {
   Rocket
 } from 'lucide-react';
 
-// SEO issues mock data
-const seoIssues = [
-  { 
-    id: 1, 
-    type: 'error', 
-    title: 'Sayfa yükleme hızı yavaş', 
-    description: 'Ana sayfa yükleme süresi 5 saniyeden fazla. Bu, SEO sıralamanızı ve kullanıcı deneyimini olumsuz etkiler.',
-    url: 'https://novaseo.com', 
-    recommendation: 'Resimleri optimize edin, CSS/JS dosyalarını sıkıştırın ve tarayıcı önbelleğe almayı etkinleştirin.'
-  },
-  {
-    id: 2,
-    type: 'error',
-    title: 'Mobil uyumluluk sorunları',
-    description: 'Mobil cihazlarda içerik ekrana sığmıyor ve yatay kaydırma gerektiriyor.',
-    url: 'https://novaseo.com/blog',
-    recommendation: 'Duyarlı bir tasarım kullanın ve tüm cihazlarda içeriğin doğru görüntülendiğinden emin olun.'
-  },
-  {
-    id: 3,
-    type: 'warning',
-    title: 'Eksik meta açıklamaları',
-    description: '8 sayfanın meta açıklaması eksik. Bu, arama sonuçlarında görüntülenen snippet\'i etkiler.',
-    url: 'https://novaseo.com/services',
-    recommendation: 'Her sayfaya benzersiz ve açıklayıcı meta açıklamaları ekleyin (150-160 karakter).'
-  },
-  {
-    id: 4,
-    type: 'warning',
-    title: 'Başlık etiketleri çok uzun',
-    description: '5 sayfanın başlık etiketi çok uzun (60 karakterden fazla).',
-    url: 'https://novaseo.com/blog/seo-tips',
-    recommendation: 'Başlık etiketlerini 50-60 karakter arasında tutun ve anahtar kelimeleri önce yerleştirin.'
-  },
-  {
-    id: 5,
-    type: 'warning',
-    title: 'Alt etiketleri eksik görseller',
-    description: 'Ana sayfada 12 görselin alt etiketi eksik.',
-    url: 'https://novaseo.com',
-    recommendation: 'Tüm görsellere açıklayıcı alt etiketleri ekleyin.'
-  },
-  {
-    id: 6,
-    type: 'info',
-    title: 'Canonical URL\'ler eksik',
-    description: 'Bazı sayfalar canonical URL\'ler kullanmıyor, bu da içerik çoğaltma sorunlarına yol açabilir.',
-    url: 'https://novaseo.com/products',
-    recommendation: 'Her sayfaya doğru canonical URL\'ler ekleyin.'
-  },
-  {
-    id: 7,
-    type: 'info',
-    title: 'HTTP yerine HTTPS kullanılıyor',
-    description: 'Tüm sayfalarınız HTTPS protokolünü kullanmıyor.',
-    url: 'http://novaseo.com/contact',
-    recommendation: 'SSL sertifikası yükleyin ve tüm sayfalarınızı HTTPS\'ye yönlendirin.'
-  }
-];
-
-// SEO improvement opportunities mock data
-const seoImprovements = [
-  {
-    id: 1,
-    title: 'Anahtar kelime yoğunluğunu optimize edin',
-    description: 'Ana sayfanızda hedef anahtar kelime yoğunluğu çok düşük (%0.5). Ideal yoğunluk %1-2 arasında olmalıdır.',
-    difficulty: 'medium',
-    impact: 'high'
-  },
-  {
-    id: 2,
-    title: 'Sayfa içi bağlantıları iyileştirin',
-    description: 'İçerik sayfalarınız arasında daha fazla iç bağlantı oluşturun. Bu, site yapısını güçlendirir ve arama motoru tarayıcılarının içeriğinizi keşfetmesine yardımcı olur.',
-    difficulty: 'low',
-    impact: 'medium'
-  },
-  {
-    id: 3,
-    title: 'İçerik derinliğini artırın',
-    description: 'Blog yazılarınız ortalama 500 kelime içeriyor. Daha uzun ve kapsamlı içerik (1000+ kelime) arama motorlarında daha iyi performans gösterir.',
-    difficulty: 'medium',
-    impact: 'high'
-  },
-  {
-    id: 4,
-    title: 'Yapılandırılmış veri ekleyin',
-    description: 'Sayfalarınız şema işaretlemeleri kullanmıyor. Bu, zengin snippetler için fırsat kaçırılmasına neden oluyor.',
-    difficulty: 'high',
-    impact: 'medium'
-  },
-  {
-    id: 5,
-    title: 'Kullanıcı deneyimini iyileştirin',
-    description: 'Mobil sayfalarınızda tıklanabilir öğeler arasındaki boşluk çok az, bu da kullanıcıların doğru öğeye tıklamasını zorlaştırıyor.',
-    difficulty: 'medium',
-    impact: 'medium'
-  },
-  {
-    id: 6,
-    title: 'Blog makalelerinizi güncelleyin',
-    description: '10+ blog makaleniz 2 yıldan eski ve güncel olmayan bilgiler içeriyor. İçeriği güncellemek SEO sıralamanızı iyileştirebilir.',
-    difficulty: 'low',
-    impact: 'medium'
-  },
-  {
-    id: 7,
-    title: 'Sosyal medya entegrasyonunu geliştirin',
-    description: 'Sayfalarınız açık grafik etiketleri kullanmıyor, bu da sosyal medyada paylaşıldığında görsel önizlemelerin düzgün görüntülenmemesine neden oluyor.',
-    difficulty: 'low',
-    impact: 'low'
-  },
-  {
-    id: 8,
-    title: 'URL yapısını basitleştirin',
-    description: 'Bazı URL\'leriniz çok uzun ve sayılar içeriyor. Daha kısa, tanımlayıcı ve anahtar kelime odaklı URL\'ler kullanın.',
-    difficulty: 'medium',
-    impact: 'low'
-  }
-];
+// Detay Modalı
+const DetailModal = ({ open, onClose, data }: { open: boolean, onClose: () => void, data: any }) => {
+  const { colors } = useTheme();
+  if (!open || !data) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+      <div
+        className="bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full p-6 relative"
+        style={{ border: `2px solid ${colors.primary}` }}
+        onClick={e => e.stopPropagation()}
+      >
+        <button className="absolute top-3 right-3 text-gray-400 hover:text-red-500" onClick={onClose}>
+          <XCircle size={24} />
+        </button>
+        <h2 className="text-xl font-bold mb-2" style={{ color: colors.text.primary }}>{data.title || data.message}</h2>
+        <div className="mb-2 text-sm" style={{ color: colors.text.secondary }}>{data.details?.explanation || data.explanation}</div>
+        <div className="mb-2">
+          <span className="font-medium">Etki:</span> {data.details?.impact || data.impact || '-'}
+          <span className="ml-4 font-medium">Zorluk:</span> {data.details?.difficulty || data.difficulty || '-'}
+          <span className="ml-4 font-medium">Kategori:</span> {data.details?.category || data.category || '-'}
+        </div>
+        <div className="mb-2">
+          <span className="font-medium">Selector:</span> <span className="font-mono text-xs">{data.details?.selector || '-'}</span>
+        </div>
+        {data.details?.example && (
+          <div className="mb-2">
+            <span className="font-medium">Örnek Kod:</span>
+            <pre className="bg-gray-100 dark:bg-gray-800 rounded p-2 mt-1 text-xs overflow-x-auto relative">
+              {data.details.example}
+              <button
+                className="absolute top-1 right-1 text-xs px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-primary-500"
+                onClick={() => {navigator.clipboard.writeText(data.details.example)}}
+              >Kopyala</button>
+            </pre>
+          </div>
+        )}
+        {data.details?.reference && (
+          <div className="mb-2">
+            <a href={data.details.reference} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">Referans</a>
+          </div>
+        )}
+        {data.details?.suggestion && (
+          <div className="mb-2">
+            <span className="font-medium">Çözüm Önerisi:</span> {data.details.suggestion}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const SEOScorePage: React.FC = () => {
   const { colors } = useTheme();
-  const { seoData } = useGame();
+  const { seoData, loadingState, error } = useGame();
   const { playSound } = useAudio();
   const [activeTab, setActiveTab] = useState('issues');
   const [expandedIssue, setExpandedIssue] = useState<number | null>(null);
@@ -154,6 +85,10 @@ const SEOScorePage: React.FC = () => {
   
   // Animate score on load
   const [animatedScore, setAnimatedScore] = useState(0);
+  
+  // Detay Modalı
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalData, setModalData] = useState<any>(null);
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -187,8 +122,10 @@ const SEOScorePage: React.FC = () => {
     requestAnimationFrame(animate);
   }, [seoData.score]);
   
-  // Filter issues by type
-  const filteredIssues = seoIssues.filter(issue => filterType.includes(issue.type));
+  // Gerçek analizden sorunlar ve iyileştirmeler (backend'den gelmiyorsa boş dizi)
+  const issues: any[] = Array.isArray(seoData.issues) ? seoData.issues : [];
+  const improvements: any[] = Array.isArray(seoData.improvements) ? seoData.improvements : [];
+  const filteredIssues = issues.filter((issue: any) => filterType.includes(issue.type));
   
   // Toggle filter type
   const toggleFilter = (type: string) => {
@@ -269,6 +206,13 @@ const SEOScorePage: React.FC = () => {
         return <AlertTriangle size={20} style={{ color: colors.warning }} />;
     }
   };
+
+  if (loadingState === "loading") {
+    return <div className="text-center text-lg text-gray-300 py-12">Analiz verileri yükleniyor...</div>;
+  }
+  if (loadingState === "error") {
+    return <div className="text-center text-red-400 py-12">{error || "Veri alınamadı."}</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -375,7 +319,7 @@ const SEOScorePage: React.FC = () => {
           >
             <p className="text-sm" style={{ color: colors.text.primary }}>
               <Rocket size={16} className="inline mr-1" />
-              SEO puanınızı iyileştirmek için <strong>{seoData.issues}</strong> sorunu çözün ve <strong>{seoData.improvements}</strong> iyileştirme önerisini uygulayın.
+              SEO puanınızı iyileştirmek için <strong>{issues.length}</strong> sorunu çözün ve <strong>{improvements.length}</strong> iyileştirme önerisini uygulayın.
             </p>
           </div>
           
@@ -514,7 +458,7 @@ const SEOScorePage: React.FC = () => {
             }}
             onClick={() => handleTabChange('issues')}
           >
-            Sorunlar ({seoIssues.length})
+            Sorunlar ({issues.length})
           </button>
           <button
             className={`px-6 py-3 font-medium ${activeTab === 'improvements' ? 'border-b-2' : ''}`}
@@ -524,7 +468,7 @@ const SEOScorePage: React.FC = () => {
             }}
             onClick={() => handleTabChange('improvements')}
           >
-            İyileştirmeler ({seoImprovements.length})
+            İyileştirmeler ({improvements.length})
           </button>
           <button
             className={`px-6 py-3 font-medium ${activeTab === 'history' ? 'border-b-2' : ''}`}
@@ -555,7 +499,7 @@ const SEOScorePage: React.FC = () => {
               </button>
               
               {/* Filter Dropdown */}
-              {isFiltering && (
+              {isFiltering && issues.length > 0 && (
                 <div 
                   className="absolute top-full left-0 mt-2 p-3 rounded-lg border shadow-lg z-10"
                   style={{ 
@@ -658,17 +602,17 @@ const SEOScorePage: React.FC = () => {
           {activeTab === 'issues' && (
             <div className="divide-y" style={{ borderColor: colors.border }}>
               {filteredIssues.length > 0 ? (
-                filteredIssues.map((issue) => (
+                filteredIssues.map((issue, idx) => (
                   <div 
-                    key={issue.id}
+                    key={idx}
                     className={`transition-colors ${
-                      expandedIssue === issue.id ? 'bg-white/5' : 'hover:bg-white/5'
+                      expandedIssue === idx ? 'bg-white/5' : 'hover:bg-white/5'
                     }`}
                   >
                     {/* Issue Header */}
                     <div 
                       className="p-4 flex items-center justify-between cursor-pointer"
-                      onClick={() => toggleIssue(issue.id)}
+                      onClick={() => toggleIssue(idx)}
                     >
                       <div className="flex items-center space-x-3">
                         {getIssueTypeIcon(issue.type)}
@@ -677,29 +621,29 @@ const SEOScorePage: React.FC = () => {
                             className="font-medium"
                             style={{ color: colors.text.primary }}
                           >
-                            {issue.title}
+                            {issue.message}
                           </h3>
                           <p className="text-sm" style={{ color: colors.text.secondary }}>
-                            {issue.url}
+                            {issue.field}
                           </p>
                         </div>
                       </div>
                       
                       <ChevronDown 
                         size={18} 
-                        className={`transition-transform ${expandedIssue === issue.id ? 'rotate-180' : ''}`}
+                        className={`transition-transform ${expandedIssue === idx ? 'rotate-180' : ''}`}
                         style={{ color: colors.text.secondary }}
                       />
                     </div>
                     
                     {/* Issue Details */}
-                    {expandedIssue === issue.id && (
+                    {expandedIssue === idx && (
                       <div className="px-4 pb-4 pt-2 ml-8">
                         <p 
                           className="mb-3 text-sm"
                           style={{ color: colors.text.secondary }}
                         >
-                          {issue.description}
+                          {issue.explanation}
                         </p>
                         
                         <div 
@@ -716,7 +660,7 @@ const SEOScorePage: React.FC = () => {
                             className="text-sm"
                             style={{ color: colors.text.secondary }}
                           >
-                            {issue.recommendation}
+                            {issue.suggestion}
                           </p>
                         </div>
                         
@@ -727,9 +671,11 @@ const SEOScorePage: React.FC = () => {
                               backgroundColor: colors.primary,
                               color: '#fff'
                             }}
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               playSound('click');
+                              setModalData(issue);
+                              setModalOpen(true);
                             }}
                           >
                             <Maximize2 size={14} />
@@ -753,7 +699,7 @@ const SEOScorePage: React.FC = () => {
           {/* Improvements Tab */}
           {activeTab === 'improvements' && (
             <div className="divide-y" style={{ borderColor: colors.border }}>
-              {seoImprovements.map((improvement) => (
+              {improvements.map((improvement: any) => (
                 <div 
                   key={improvement.id}
                   className={`transition-colors ${
@@ -824,9 +770,11 @@ const SEOScorePage: React.FC = () => {
                             backgroundColor: `${colors.success}20`,
                             color: colors.success
                           }}
-                          onClick={(e) => {
+                          onClick={e => {
                             e.stopPropagation();
                             playSound('click');
+                            setModalData(improvement);
+                            setModalOpen(true);
                           }}
                         >
                           <ChevronRight size={14} />
@@ -855,6 +803,8 @@ const SEOScorePage: React.FC = () => {
           )}
         </div>
       </div>
+      {/* Modal */}
+      <DetailModal open={modalOpen} onClose={() => setModalOpen(false)} data={modalData} />
     </div>
   );
 };

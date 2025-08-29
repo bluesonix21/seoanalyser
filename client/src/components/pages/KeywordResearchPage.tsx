@@ -24,158 +24,9 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 
-// Mock keyword data
-interface ExtendedKeywordData {
-  keyword: string;
-  volume: number;
-  difficulty: number;
-  cpc: number;
-  position: number | null;
-  trend: 'up' | 'down' | 'stable';
-  competition: 'high' | 'medium' | 'low';
-  intent: 'informational' | 'commercial' | 'navigational' | 'transactional';
-  related: string[];
-}
-
-// Extended mock keyword data
-const extendedKeywords: ExtendedKeywordData[] = [
-  { 
-    keyword: "seo tools", 
-    volume: 12500, 
-    difficulty: 67, 
-    cpc: 3.42, 
-    position: 8,
-    trend: 'up',
-    competition: 'high',
-    intent: 'commercial',
-    related: ['seo software', 'best seo tools', 'free seo tools']
-  },
-  { 
-    keyword: "backlink analysis", 
-    volume: 6300, 
-    difficulty: 54, 
-    cpc: 2.85, 
-    position: 4,
-    trend: 'stable',
-    competition: 'medium',
-    intent: 'informational',
-    related: ['backlink checker', 'backlink tracker', 'backlink audit']
-  },
-  { 
-    keyword: "seo dashboard", 
-    volume: 4700, 
-    difficulty: 42, 
-    cpc: 2.31, 
-    position: 2,
-    trend: 'up',
-    competition: 'medium',
-    intent: 'commercial',
-    related: ['seo reporting', 'seo analytics', 'seo metrics']
-  },
-  { 
-    keyword: "competitor analysis", 
-    volume: 9200, 
-    difficulty: 61, 
-    cpc: 3.17, 
-    position: 12,
-    trend: 'up',
-    competition: 'high',
-    intent: 'informational',
-    related: ['competitor research', 'marketing competitor analysis', 'website competitor analysis']
-  },
-  { 
-    keyword: "keyword research tool", 
-    volume: 7800, 
-    difficulty: 72, 
-    cpc: 4.26, 
-    position: 18,
-    trend: 'down',
-    competition: 'high',
-    intent: 'commercial',
-    related: ['keyword finder', 'keyword planner', 'keyword analyzer']
-  },
-  { 
-    keyword: "site audit software", 
-    volume: 3600, 
-    difficulty: 49, 
-    cpc: 2.93, 
-    position: 7,
-    trend: 'stable',
-    competition: 'medium',
-    intent: 'commercial',
-    related: ['website audit tool', 'seo audit', 'technical seo audit']
-  },
-  { 
-    keyword: "seo performance tracking", 
-    volume: 2900, 
-    difficulty: 37, 
-    cpc: 1.98, 
-    position: null,
-    trend: 'up',
-    competition: 'low',
-    intent: 'informational',
-    related: ['seo progress', 'track seo results', 'seo monitoring']
-  },
-  { 
-    keyword: "content optimization", 
-    volume: 5400, 
-    difficulty: 58, 
-    cpc: 3.56, 
-    position: 5,
-    trend: 'up',
-    competition: 'medium',
-    intent: 'informational',
-    related: ['content seo', 'optimize content', 'content marketing']
-  },
-  { 
-    keyword: "local seo", 
-    volume: 8700, 
-    difficulty: 64, 
-    cpc: 3.89, 
-    position: null,
-    trend: 'up',
-    competition: 'high',
-    intent: 'informational',
-    related: ['local search', 'google my business', 'local citations']
-  },
-  { 
-    keyword: "mobile seo", 
-    volume: 3200, 
-    difficulty: 51, 
-    cpc: 2.75, 
-    position: 9,
-    trend: 'stable',
-    competition: 'medium',
-    intent: 'informational',
-    related: ['mobile optimization', 'mobile friendly', 'responsive design']
-  },
-  { 
-    keyword: "voice search optimization", 
-    volume: 1800, 
-    difficulty: 45, 
-    cpc: 1.92, 
-    position: null,
-    trend: 'up',
-    competition: 'low',
-    intent: 'informational',
-    related: ['voice search seo', 'alexa seo', 'voice assistant optimization']
-  },
-  { 
-    keyword: "ecommerce seo", 
-    volume: 6800, 
-    difficulty: 68, 
-    cpc: 3.98, 
-    position: 15,
-    trend: 'up',
-    competition: 'high',
-    intent: 'commercial',
-    related: ['online shop seo', 'product page optimization', 'ecommerce keywords']
-  }
-];
-
 const KeywordResearchPage: React.FC = () => {
   const { colors } = useTheme();
-  const { keywordData } = useGame();
+  const { keywordData, loadingState, error } = useGame();
   const { playSound } = useAudio();
   const [searchQuery, setSearchQuery] = useState('');
   const [difficulty, setDifficulty] = useState<string[]>(['low', 'medium', 'high']);
@@ -198,7 +49,7 @@ const KeywordResearchPage: React.FC = () => {
   };
   
   // Filter and sort keywords
-  const filteredKeywords = extendedKeywords.filter(keyword => {
+  const filteredKeywords = keywordData.filter(keyword => {
     // Filter by search query
     const matchesSearch = searchQuery === '' || 
       keyword.keyword.toLowerCase().includes(searchQuery.toLowerCase());
@@ -245,48 +96,6 @@ const KeywordResearchPage: React.FC = () => {
     return 'Yüksek';
   };
   
-  // Get competition color
-  const getCompetitionColor = (competition: string) => {
-    switch (competition) {
-      case 'low':
-        return colors.success;
-      case 'medium':
-        return colors.warning;
-      case 'high':
-        return colors.error;
-      default:
-        return colors.text.secondary;
-    }
-  };
-  
-  // Get trend icon
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up':
-        return <ArrowUp size={16} style={{ color: colors.success }} />;
-      case 'down':
-        return <ArrowDown size={16} style={{ color: colors.error }} />;
-      default:
-        return <ArrowRight size={16} style={{ color: colors.text.secondary }} />;
-    }
-  };
-  
-  // Get intent color
-  const getIntentColor = (intent: string) => {
-    switch (intent) {
-      case 'commercial':
-        return colors.success;
-      case 'transactional':
-        return colors.primary;
-      case 'informational':
-        return colors.info;
-      case 'navigational':
-        return colors.secondary;
-      default:
-        return colors.text.secondary;
-    }
-  };
-  
   // Handle sort change
   const handleSortChange = (sort: string) => {
     setSortBy(sort);
@@ -304,6 +113,13 @@ const KeywordResearchPage: React.FC = () => {
     setIsAddingKeyword(!isAddingKeyword);
     playSound('click');
   };
+
+  if (loadingState === "loading") {
+    return <div className="text-center text-lg text-gray-300 py-12">Analiz verileri yükleniyor...</div>;
+  }
+  if (loadingState === "error") {
+    return <div className="text-center text-red-400 py-12">{error || "Veri alınamadı."}</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -353,7 +169,7 @@ const KeywordResearchPage: React.FC = () => {
           </div>
           <div>
             <p className="text-sm" style={{ color: colors.text.secondary }}>Toplam Anahtar Kelime</p>
-            <h3 className="text-2xl font-bold" style={{ color: colors.text.primary }}>{extendedKeywords.length}</h3>
+            <h3 className="text-2xl font-bold" style={{ color: colors.text.primary }}>{keywordData.length}</h3>
           </div>
         </div>
         
@@ -370,7 +186,7 @@ const KeywordResearchPage: React.FC = () => {
           <div>
             <p className="text-sm" style={{ color: colors.text.secondary }}>İlk 10'daki Kelimeler</p>
             <h3 className="text-2xl font-bold" style={{ color: colors.text.primary }}>
-              {extendedKeywords.filter(k => k.position !== null && k.position <= 10).length}
+              {keywordData.filter(k => k.position !== null && k.position <= 10).length}
             </h3>
           </div>
         </div>
@@ -388,7 +204,7 @@ const KeywordResearchPage: React.FC = () => {
           <div>
             <p className="text-sm" style={{ color: colors.text.secondary }}>Potansiyel Kelimeler</p>
             <h3 className="text-2xl font-bold" style={{ color: colors.text.primary }}>
-              {extendedKeywords.filter(k => k.position === null).length}
+              {keywordData.filter(k => k.position === null).length}
             </h3>
           </div>
         </div>
@@ -406,7 +222,7 @@ const KeywordResearchPage: React.FC = () => {
           <div>
             <p className="text-sm" style={{ color: colors.text.secondary }}>İyileştirme Gerektiren</p>
             <h3 className="text-2xl font-bold" style={{ color: colors.text.primary }}>
-              {extendedKeywords.filter(k => k.position !== null && k.position > 10).length}
+              {keywordData.filter(k => k.position !== null && k.position > 10).length}
             </h3>
           </div>
         </div>
@@ -630,7 +446,6 @@ const KeywordResearchPage: React.FC = () => {
                 <th className="p-3 text-left" style={{ color: colors.text.secondary }}>Zorluk</th>
                 <th className="p-3 text-left" style={{ color: colors.text.secondary }}>CPC (₺)</th>
                 <th className="p-3 text-left" style={{ color: colors.text.secondary }}>Pozisyon</th>
-                <th className="p-3 text-left" style={{ color: colors.text.secondary }}>Trend</th>
                 <th className="p-3 text-left" style={{ color: colors.text.secondary }}>İşlemler</th>
               </tr>
             </thead>
@@ -680,11 +495,6 @@ const KeywordResearchPage: React.FC = () => {
                       )}
                     </td>
                     <td className="p-3">
-                      <div className="flex items-center">
-                        {getTrendIcon(keyword.trend)}
-                      </div>
-                    </td>
-                    <td className="p-3">
                       <div className="flex space-x-1">
                         <button 
                           className="p-1.5 rounded hover:bg-white/10"
@@ -714,55 +524,16 @@ const KeywordResearchPage: React.FC = () => {
                       <td colSpan={7} className="p-4">
                         <div className="space-y-4">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div 
-                              className="p-3 rounded-lg"
-                              style={{ backgroundColor: colors.background.card }}
-                            >
+                            <div className="p-3 rounded-lg">
                               <h4 
                                 className="text-sm font-medium mb-2"
                                 style={{ color: colors.text.secondary }}
                               >
-                                Rekabet
+                                {/* İlgili anahtar kelimeler alanı kaldırıldı, çünkü API'den gelmiyor */}
                               </h4>
-                              <div 
-                                className="text-sm font-medium inline-block px-2 py-1 rounded"
-                                style={{ 
-                                  backgroundColor: `${getCompetitionColor(keyword.competition)}20`,
-                                  color: getCompetitionColor(keyword.competition)
-                                }}
-                              >
-                                {keyword.competition === 'low' ? 'Düşük' : 
-                                  keyword.competition === 'medium' ? 'Orta' : 'Yüksek'}
-                              </div>
                             </div>
                             
-                            <div 
-                              className="p-3 rounded-lg"
-                              style={{ backgroundColor: colors.background.card }}
-                            >
-                              <h4 
-                                className="text-sm font-medium mb-2"
-                                style={{ color: colors.text.secondary }}
-                              >
-                                Arama Niyeti
-                              </h4>
-                              <div 
-                                className="text-sm font-medium inline-block px-2 py-1 rounded"
-                                style={{ 
-                                  backgroundColor: `${getIntentColor(keyword.intent)}20`,
-                                  color: getIntentColor(keyword.intent)
-                                }}
-                              >
-                                {keyword.intent === 'commercial' ? 'Ticari' : 
-                                  keyword.intent === 'informational' ? 'Bilgi Arama' : 
-                                  keyword.intent === 'navigational' ? 'Yönlendirme' : 'İşlem'}
-                              </div>
-                            </div>
-                            
-                            <div 
-                              className="p-3 rounded-lg"
-                              style={{ backgroundColor: colors.background.card }}
-                            >
+                            <div className="p-3 rounded-lg">
                               <h4 
                                 className="text-sm font-medium mb-2"
                                 style={{ color: colors.text.secondary }}
@@ -782,29 +553,6 @@ const KeywordResearchPage: React.FC = () => {
                             </div>
                           </div>
                           
-                          <div>
-                            <h4 
-                              className="text-sm font-medium mb-2"
-                              style={{ color: colors.text.secondary }}
-                            >
-                              İlgili Anahtar Kelimeler
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {keyword.related.map((relatedKeyword, index) => (
-                                <div 
-                                  key={index} 
-                                  className="px-3 py-1.5 rounded-full text-sm border"
-                                  style={{ 
-                                    borderColor: colors.border,
-                                    color: colors.text.primary
-                                  }}
-                                >
-                                  {relatedKeyword}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          
                           <div className="flex justify-end space-x-2">
                             <button
                               className="px-3 py-2 rounded-lg flex items-center text-sm"
@@ -816,18 +564,6 @@ const KeywordResearchPage: React.FC = () => {
                             >
                               <ExternalLink size={16} className="mr-1.5" />
                               <span>Arama Sonuçlarında Gör</span>
-                            </button>
-                            
-                            <button
-                              className="px-3 py-2 rounded-lg flex items-center text-sm"
-                              style={{ 
-                                backgroundColor: `${colors.primary}20`,
-                                color: colors.primary
-                              }}
-                              onClick={() => playSound('click')}
-                            >
-                              <TrendingUp size={16} className="mr-1.5" />
-                              <span>Detaylı Analiz</span>
                             </button>
                           </div>
                         </div>

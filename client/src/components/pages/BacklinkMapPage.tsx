@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../theme/ThemeProvider';
 import { useAudio } from '../../lib/stores/useAudio';
+import { useGame } from '../../lib/stores/useGame';
 
 // Icons
 import { 
@@ -32,6 +33,7 @@ import {
 const BacklinkMapPage: React.FC = () => {
   const { colors } = useTheme();
   const { playSound } = useAudio();
+  const { backlinkData, loadingState, error } = useGame();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isFiltering, setIsFiltering] = useState(false);
@@ -267,6 +269,13 @@ const BacklinkMapPage: React.FC = () => {
     name: type,
     count: backlinks.filter(b => b.linkType === type).length
   }));
+
+  if (loadingState === "loading") {
+    return <div className="text-center text-lg text-gray-300 py-12">Analiz verileri yükleniyor...</div>;
+  }
+  if (loadingState === "error") {
+    return <div className="text-center text-red-400 py-12">{error || "Veri alınamadı."}</div>;
+  }
 
   return (
     <div className="space-y-6">

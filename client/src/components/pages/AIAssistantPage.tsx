@@ -2,6 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../theme/ThemeProvider';
 import { useAudio } from '../../lib/stores/useAudio';
+import { 
+  callDeepSeekApi, 
+  AiResponse, 
+  isResearchQuery, 
+  extractResearchKeywords,
+  processResearchResults, 
+  DEFAULT_API_KEY
+} from '../../lib/services/deepseekService';
+import { useApiKey } from '../../lib/stores/useApiKey';
+import VirtualResearchBox from '../virtualbox/VirtualResearchBox'; // VirtualResearchBox bileşenini import ediyoruz
 
 // Icons
 import { 
@@ -18,7 +28,11 @@ import {
   BarChart2,
   Link as LinkIcon, 
   Crosshair,
-  Search
+  Search,
+  Key,
+  Save,
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 
 // Example conversation history
@@ -71,6 +85,24 @@ const AIAssistantPage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
+  // DeepSeek API Key
+  const { deepseekApiKey, setDeepseekApiKey } = useApiKey();
+  const [apiKeyInput, setApiKeyInput] = useState(deepseekApiKey || DEFAULT_API_KEY);
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  
+  // Research mode
+  const [isResearching, setIsResearching] = useState(false);
+  const [researchKeywords, setResearchKeywords] = useState<string[]>([]);
+  const [currentUserQuery, setCurrentUserQuery] = useState('');
+  
+  // Suggested questions based on AI response
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([
+    "SEO puanımı nasıl yükseltebilirim?",
+    "Backlink profilimi analiz et",
+    "Rakip site analizi nasıl yapılır?",
+    "En iyi anahtar kelimeleri bul"
+  ]);
+  
   // Scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
@@ -88,61 +120,183 @@ const AIAssistantPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
   
+  // Save API key
+  const saveApiKey = () => {
+    setDeepseekApiKey(apiKeyInput);
+    setShowApiKeyInput(false);
+    playSound('success');
+  };
+  
+  // Handle completing research - process collected data
+  const handleResearchComplete = async (
+    collectedDataMap: { [keyword: string]: { url: string; title: string; content: string }[] },
+    totalSources: number
+  ) => {
+    setIsResearching(false);
+    try {
+      setIsTyping(true);
+      
+      // Log the collected data for debugging
+      console.log("Research complete! Collected data for keywords:", Object.keys(collectedDataMap));
+      console.log("Total sources collected:", totalSources);
+      
+      // Transform the collected data into the format expected by processResearchResults
+      const formattedDataArray = Object.entries(collectedDataMap).map(([keyword, sources]) => ({
+        keyword,
+        // Combine all content from sources for this keyword
+        content: sources.map(source => 
+          `[${source.title}]\n${source.url}\n${source.content}`
+        ).join('\n\n---\n\n')
+      }));
+      
+      // Only send to DeepSeek API if we have data to process
+      if (formattedDataArray.length === 0) {
+        const errorMessage: Message = {
+          id: Date.now().toString(),
+          content: `Üzgünüm, araştırma sırasında herhangi bir veri toplanamadı. Lütfen başka bir konuda araştırma yapmayı deneyin.`,
+          sender: 'ai',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        setIsTyping(false);
+        return;
+      }
+      
+      // Send collected data to DeepSeek for processing
+      console.log("Sending to DeepSeek API for processing:", formattedDataArray.length, "research topics");
+      const aiResponse = await processResearchResults(
+        currentUserQuery,
+        formattedDataArray,
+        deepseekApiKey || DEFAULT_API_KEY
+      );
+      
+      // Update suggested questions if available
+      if (aiResponse.suggestedQuestions && aiResponse.suggestedQuestions.length > 0) {
+        setSuggestedQuestions(aiResponse.suggestedQuestions);
+      }
+      
+      // Add the AI response to the chat
+      const aiMessage: Message = {
+        id: Date.now().toString(),
+        content: aiResponse.response,
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiMessage]);
+      playSound('notification');
+    } catch (error) {
+      console.error("Error processing research results:", error);
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        content: `Üzgünüm, araştırma sonuçlarını işlerken bir hata oluştu. Toplam ${totalSources} kaynak ziyaret edildi, ancak verileri işleyemedim.`,
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+  
   // Send message
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
+    
+    const message = inputMessage.trim();
+    setInputMessage('');
+    playSound('click');
     
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputMessage,
+      content: message,
       sender: 'user',
       timestamp: new Date()
     };
     
     setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
-    playSound('click');
     
-    // Simulate AI response
-    setIsTyping(true);
-    setTimeout(() => {
-      const aiResponse = generateAIResponse(inputMessage);
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: aiResponse,
-        sender: 'ai',
-        timestamp: new Date()
-      };
+    // Check if this is a research query
+    if (isResearchQuery(message)) {
+      // Store the current query for later use
+      setCurrentUserQuery(message);
       
-      setMessages(prev => [...prev, aiMessage]);
-      setIsTyping(false);
-      playSound('notification');
-    }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
-  };
-  
-  // Generate AI response based on user input
-  const generateAIResponse = (input: string): string => {
-    const lowerInput = input.toLowerCase();
-    
-    if (lowerInput.includes('seo puan') || lowerInput.includes('yükselt')) {
-      return `SEO puanınızı yükseltmek için şu adımları izleyebilirsiniz:\n\n1. Sayfa yükleme hızını optimize edin\n2. Mobil uyumluluğu iyileştirin\n3. Meta açıklamalarını ve başlık etiketlerini düzenleyin\n4. İçerik kalitesini artırın\n5. İç bağlantıları iyileştirin\n6. Yapısal verileri ekleyin\n\nBu değişiklikleri uygulamak için SEO Puanı sayfasındaki tavsiyelere bakabilirsiniz. Daha detaylı analiz yapmamı ister misiniz?`;
+      // Show AI typing indicator
+      setIsTyping(true);
+      
+      try {
+        // Call DeepSeek API to extract keywords for research
+        const initialResponse = await callDeepSeekApi(message, deepseekApiKey || DEFAULT_API_KEY);
+        
+        // Add initial AI response ("Hemen araştırma yapıyorum...")
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: initialResponse.response,
+          sender: 'ai',
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, aiMessage]);
+        
+        // Get research keywords from API
+        const extractedKeywords = await extractResearchKeywords(message, deepseekApiKey || DEFAULT_API_KEY);
+        
+        setIsTyping(false);
+        
+        // Start research mode with keywords
+        setResearchKeywords(extractedKeywords);
+        setIsResearching(true);
+        
+      } catch (error) {
+        console.error("Error starting research:", error);
+        setIsTyping(false);
+        
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: "Üzgünüm, araştırma başlatılırken bir hata oluştu.",
+          sender: 'ai',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
+      
+    } else {
+      // Regular message processing
+      // Show AI typing indicator
+      setIsTyping(true);
+      
+      try {
+        // Call DeepSeek API
+        const aiResponse = await callDeepSeekApi(message, deepseekApiKey || DEFAULT_API_KEY);
+        
+        // Update suggested questions based on AI response
+        if (aiResponse.suggestedQuestions && aiResponse.suggestedQuestions.length > 0) {
+          setSuggestedQuestions(aiResponse.suggestedQuestions);
+        }
+        
+        // Add AI response to messages
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: aiResponse.response,
+          sender: 'ai',
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, aiMessage]);
+        playSound('notification');
+      } catch (error) {
+        console.error("Error getting AI response:", error);
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: "Üzgünüm, yanıt alırken bir hata oluştu. Lütfen API anahtarınızı kontrol edin veya daha sonra tekrar deneyin.",
+          sender: 'ai',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      } finally {
+        setIsTyping(false);
+      }
     }
-    
-    if (lowerInput.includes('backlink') || lowerInput.includes('link')) {
-      return `Backlink profilinizde şu anda toplam 1,247 bağlantı ve 342 benzersiz domain bulunuyor. Kalite dağılımı şöyle:\n\n- Yüksek Kalite: 425 bağlantı\n- Orta Kalite: 638 bağlantı\n- Düşük Kalite: 184 bağlantı\n\nSon 30 günde 87 yeni bağlantı kazandınız ve 32 bağlantı kaybettiniz. En değerli backlinkleriniz example.com, blog-platform.com ve social-media.net'ten geliyor.\n\nBacklink profilinizi daha detaylı analiz etmek ve görselleştirmek için Backlink Haritası sayfasını ziyaret edebilirsiniz.`;
-    }
-    
-    if (lowerInput.includes('rakip') || lowerInput.includes('competitor')) {
-      return `Rakip site analizini şu şekilde yapabilirsiniz:\n\n1. Rakiplerinizi belirleyin: Aynı anahtar kelimeler için sıralanan siteleri tespit edin\n2. SEO metriklerini karşılaştırın: Domain otoritesi, backlink sayısı, içerik miktarı\n3. Anahtar kelime örtüşmelerini analiz edin: Hangi kelimeler için sıralama yapıyorlar?\n4. İçerik stratejilerini inceleyin: İçerik uzunluğu, türü ve kalitesi nasıl?\n5. Teknik SEO durumlarını kontrol edin: Site hızı, mobil uyumluluk, yapısal veriler\n\nRakip Analizi sayfasında başlıca rakiplerinizin detaylı karşılaştırmasını görebilirsiniz. Belirli bir rakip hakkında daha fazla bilgi ister misiniz?`;
-    }
-    
-    if (lowerInput.includes('anahtar kelime') || lowerInput.includes('keyword')) {
-      return `Siteniz için en iyi anahtar kelimeleri belirlemek için şu faktörleri göz önünde bulundurmalısınız:\n\n1. Arama Hacmi: Aylık arama sayısı yüksek kelimeler\n2. Rekabet: Düşük-orta zorlukta kelimeler ideal olabilir\n3. Dönüşüm Potansiyeli: Satın alma niyeti olan kelimeler\n4. Alaka Düzeyi: İçeriğiniz ve ürünlerinizle ilgili olmalı\n\nAnaliz sonuçlarına göre öne çıkan anahtar kelimeler:\n- "seo araçları" (12,500 arama/ay)\n- "backlink analizi" (6,300 arama/ay)\n- "seo dashboard" (4,700 arama/ay)\n- "rakip analizi" (9,200 arama/ay)\n\nDaha fazla anahtar kelime önerisi için Anahtar Kelime Araştırması sayfasını kullanabilirsiniz.`;
-    }
-    
-    // Default response
-    return `Teşekkürler! Sorunuz üzerinde çalışıyorum. SEO, backlinkler, rakip analizi veya site optimizasyonu hakkında daha spesifik sorularınız varsa, size daha detaylı bilgi verebilirim. NovaSEO'nun tüm analitik özelliklerini kullanmanıza yardımcı olabilirim.`;
   };
   
   // Handle input change
@@ -242,6 +396,17 @@ const AIAssistantPage: React.FC = () => {
 
   return (
     <div className="h-[calc(100vh-12rem)] flex flex-col">
+      {/* VirtualBrowser for Research Mode */}
+      <AnimatePresence>
+        {isResearching && (
+          <VirtualResearchBox
+            keywords={researchKeywords} 
+            onComplete={handleResearchComplete}
+            onClose={() => setIsResearching(false)}
+          />
+        )}
+      </AnimatePresence>
+      
       {/* Page Header */}
       <div className="flex justify-between items-center mb-4">
         <div>
@@ -254,6 +419,18 @@ const AIAssistantPage: React.FC = () => {
         </div>
         
         <div className="flex items-center space-x-2">
+          <button 
+            className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors"
+            style={{ 
+              backgroundColor: `${colors.secondary}10`, 
+              color: colors.secondary
+            }}
+            onClick={() => setShowApiKeyInput(!showApiKeyInput)}
+          >
+            <Key size={16} />
+            <span>API Anahtarı</span>
+          </button>
+          
           <button 
             className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors"
             style={{ 
@@ -291,6 +468,69 @@ const AIAssistantPage: React.FC = () => {
           </button>
         </div>
       </div>
+      
+      {/* API Key Input Dialog */}
+      <AnimatePresence>
+        {showApiKeyInput && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="mb-4 p-4 rounded-lg border"
+            style={{ 
+              backgroundColor: colors.background.card,
+              borderColor: colors.border
+            }}
+          >
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-medium" style={{ color: colors.text.primary }}>
+                DeepSeek API Anahtarı
+              </h3>
+              <button
+                onClick={() => setShowApiKeyInput(false)}
+                style={{ color: colors.text.secondary }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            
+            <p className="text-sm mb-3" style={{ color: colors.text.secondary }}>
+              NovaSEO AI'nin çalışması için DeepSeek API anahtarı gereklidir. 
+              Varsayılan API anahtarı zaten eklenmiştir ama isterseniz değiştirebilirsiniz.
+            </p>
+            
+            <div className="flex items-center">
+              <input
+                type="password"
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                className="flex-1 p-2 rounded-lg border mr-2"
+                placeholder="DeepSeek API anahtarınızı girin"
+                style={{ 
+                  backgroundColor: colors.background.main,
+                  borderColor: colors.border,
+                  color: colors.text.primary
+                }}
+              />
+              <button
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg"
+                style={{ 
+                  backgroundColor: colors.primary,
+                  color: '#fff'
+                }}
+                onClick={saveApiKey}
+              >
+                <Save size={16} />
+                <span>Kaydet</span>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Main Chat Area */}
       <div className="flex flex-col h-full">
@@ -336,18 +576,21 @@ const AIAssistantPage: React.FC = () => {
                   <span>SEO Optimizasyonu</span>
                 </div>
                 <div className="space-y-2">
-                  {examplePrompts.map(prompt => (
+                  {suggestedQuestions.slice(0, 4).map((question, idx) => (
                     <div 
-                      key={prompt.id}
+                      key={idx}
                       className="p-2.5 rounded-lg cursor-pointer border border-transparent hover:border-gray-700 flex items-center"
                       style={{ backgroundColor: colors.background.main }}
-                      onClick={() => usePrompt(prompt.title)}
+                      onClick={() => usePrompt(question)}
                     >
                       <span className="mr-2" style={{ color: colors.accent }}>
-                        {prompt.icon}
+                        {idx === 0 ? <BarChart2 size={16} /> : 
+                         idx === 1 ? <LinkIcon size={16} /> : 
+                         idx === 2 ? <Crosshair size={16} /> : 
+                         <Search size={16} />}
                       </span>
                       <p className="text-sm" style={{ color: colors.text.primary }}>
-                        {prompt.title}
+                        {question}
                       </p>
                     </div>
                   ))}
@@ -388,6 +631,25 @@ const AIAssistantPage: React.FC = () => {
                 >
                   <p className="text-sm" style={{ color: colors.text.primary }}>
                     Bana nasıl yardımcı olabilirsin?
+                  </p>
+                </div>
+              </div>
+              
+              <div>
+                <div 
+                  className="flex items-center mb-2.5 text-sm font-medium"
+                  style={{ color: colors.text.secondary }}
+                >
+                  <Search size={16} className="mr-2" />
+                  <span>Araştırma Modu</span>
+                </div>
+                <div 
+                  className="p-2.5 rounded-lg cursor-pointer border border-transparent hover:border-gray-700"
+                  style={{ backgroundColor: colors.background.main }}
+                  onClick={() => usePrompt('SEO trendlerini araştır ve analiz et')}
+                >
+                  <p className="text-sm" style={{ color: colors.text.primary }}>
+                    SEO trendlerini araştır ve analiz et
                   </p>
                 </div>
               </div>
@@ -517,6 +779,7 @@ const AIAssistantPage: React.FC = () => {
                     onChange={handleInputChange}
                     onKeyDown={handleKeyPress}
                     style={{ color: colors.text.primary }}
+                    disabled={isResearching}
                   />
                   
                   <div 
@@ -526,7 +789,7 @@ const AIAssistantPage: React.FC = () => {
                       color: colors.text.secondary
                     }}
                   >
-                    Enter tuşuna basarak gönder, yeni satır için Shift+Enter
+                    Enter tuşuna basarak gönder, yeni satır için Shift+Enter {isResearchQuery(inputMessage) && "• Araştırma modu"}
                   </div>
                 </div>
                 
@@ -535,10 +798,10 @@ const AIAssistantPage: React.FC = () => {
                   style={{ 
                     backgroundColor: colors.primary,
                     color: '#fff',
-                    opacity: inputMessage.trim() ? 1 : 0.5
+                    opacity: inputMessage.trim() && !isResearching ? 1 : 0.5
                   }}
                   onClick={handleSendMessage}
-                  disabled={!inputMessage.trim()}
+                  disabled={!inputMessage.trim() || isResearching}
                 >
                   <Send size={18} />
                 </button>
